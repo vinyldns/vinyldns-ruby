@@ -1,0 +1,12 @@
+{
+  "name": "vinyldns-ruby",
+  "sources": {
+    "bower": false,
+    "rubygem": true,
+    "cabel": false,
+    "go": false
+  },
+  "allowed": ["mit","apache-2.0","bsd-2-clause","bsd-3-clause"],
+  "ignored": { "rubygem": ["aws-sigv4"] }
+}
+

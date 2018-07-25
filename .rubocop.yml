@@ -1,0 +1,32 @@
+Style/Documentation:
+  Enabled: false
+Style/BracesAroundHashParameters:
+  Enabled: false
+Style/CommentedKeyword:
+  Enabled: false
+Style/BlockDelimiters:
+  EnforcedStyle: braces_for_chaining
+Metrics/LineLength:
+  Enabled: false
+Metrics/CyclomaticComplexity:
+  Enabled: false
+Metrics/PerceivedComplexity:
+  Enabled: false
+Metrics/MethodLength:
+  Enabled: false
+Metrics/AbcSize:
+  Enabled: false
+Metrics/BlockLength:
+  Enabled: false
+Layout/LeadingCommentSpace:
+  Enabled: false
+Layout/FirstParameterIndentation:
+  Enabled: false
+Layout/ClosingParenthesisIndentation:
+  Enabled: false
+Layout/IndentArray:
+  Enabled: false
+Layout/IndentHash:
+  Enabled: false
+Layout/AlignArray:
+  Enabled: false

@@ -23,7 +23,7 @@ Gem::Specification.new do |gem|
   gem.email         = 'nathan_pierce@comcast.com'
   gem.homepage      = 'https://github.com/vinyldns/vinyldns-ruby'
   gem.files         = `git ls-files -z`.split("\x0").reject { |f| f.match(%r{^(test|spec|features)/}) }
-  gem.licenses      = ['BSD-2-Clause']
+  gem.licenses      = ['Apache-2.0']
 
   # `git submodule --quiet foreach --recursive pwd`.split($/).each do |submodule|
   #   submodule.sub!("#{Dir.pwd}/",'')

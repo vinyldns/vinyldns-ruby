@@ -2,7 +2,7 @@
 
 Ruby gem for working with VinylDNS.
 
-* It was built around the API reference
+* It was built around the API documentation
 * It relies, currently, on the AWS-SDK to sign the HTTP requests it makes
 
 # Requirements

@@ -126,7 +126,7 @@ If you decide to contribute, please read over our [contributor documentation](CO
         
 ### Vinyldns::API::Zone::BatchRecordChanges
 
-    - No Zone ID needed
+    [No Zone ID needed for these]
 
     - create(changes_array, comments)
         - changes must be an array of Add or DeleteRecordSet hashes.

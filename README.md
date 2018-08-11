@@ -2,7 +2,7 @@
 
 Ruby gem for working with VinylDNS.
 
-* It was built around the API documentation
+* It was built around [the API](https://www.vinyldns.io/api/)
 * It relies, currently, on the AWS-SDK to sign the HTTP requests it makes
 
 # Requirements
@@ -34,7 +34,7 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 * Each method returns a JSON object
 * The methods request an 'api_request_object' with the HTTP Method specified like: ```Vinyldns::API.new('get')```, then perform a variation of ```Vinyldns::API.make_request(api_request_object, "zones/#{zone_id}")```
-* Method parameters match the HTTP Request Parameter requirements in the API. See the API Reference for more information.
+* Method parameters match the HTTP Request Parameter requirements in the API. See the [API Reference](https://www.vinyldns.io/api/) for more information.
 
 ## Contributing
 
@@ -156,3 +156,6 @@ If you decide to contribute, please read over our [contributor documentation](CO
     - list_group_members(id, max_items = 5, start_from = nil)
 
     - get_group_activity(id, max_items = 5, start_from = nil)
+
+# Maintainers
+* [Nathan Pierce](https://github.com/NorseGaud)

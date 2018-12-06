@@ -52,7 +52,7 @@ module Vinyldns
       )
       url = URI(signed_object.api_url)
       https = Net::HTTP.new(url.host, url.port)
-      https.use_ssl = true
+      https.use_ssl = true ? url.scheme == "https" : https.use_ssl = false
       https.verify_mode = OpenSSL::SSL::VERIFY_NONE # SSL not signed? Don't care!
       request = Net::HTTP::Post.new(uri == '/' ? uri : "/#{uri}") if signed_object.method == 'POST'
       request = Net::HTTP::Put.new(uri == '/' ? uri : "/#{uri}") if signed_object.method == 'PUT'

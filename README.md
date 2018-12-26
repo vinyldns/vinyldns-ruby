@@ -11,7 +11,8 @@ Ruby gem for working with VinylDNS.
 2. ```ENV['VINYLDNS_ACCESS_KEY_ID']``` & ```ENV['VINYLDNS_SECRET_ACCESS_KEY']``` are set in your application or local shell
     * You can find both of these within the portal by downloading your credentials file
 3. ```ENV['VINYLDNS_API_URL']``` is set with your api url (if applicable include http[s]:// and port)
-    
+4. Endpoint using a signed certificate for https? Set ```ENV['VINYLDNS_SSL_VERIFY']``` to true.
+
 # Installation
 
 Add this line to your application's Gemfile:

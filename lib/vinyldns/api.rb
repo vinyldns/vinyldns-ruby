@@ -53,7 +53,7 @@ module Vinyldns
       url = URI(signed_object.api_url)
       https = Net::HTTP.new(url.host, url.port)
       https.use_ssl = true ? url.scheme == "https" : https.use_ssl = false
-      https.verify_mode = !ENV['VINYLDNS_VERIFY_SSL'] ?  OpenSSL::SSL::VERIFY_NONE : OpenSSL::SSL::VERIFY_PEER
+      https.verify_mode = ENV['VINYLDNS_VERIFY_SSL'] == false || !ENV['VINYLDNS_VERIFY_SSL'].nil? ? OpenSSL::SSL::VERIFY_NONE : OpenSSL::SSL::VERIFY_PEER
       request = Net::HTTP::Post.new(uri == '/' ? uri : "/#{uri}") if signed_object.method == 'POST'
       request = Net::HTTP::Put.new(uri == '/' ? uri : "/#{uri}") if signed_object.method == 'PUT'
       request = Net::HTTP::Get.new(uri == '/' ? uri : "/#{uri}") if signed_object.method == 'GET'

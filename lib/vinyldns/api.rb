@@ -43,7 +43,7 @@ module Vinyldns
     # Required arguments:
     # - a signed object. ex: Vinyldns::API.new('get/POST/dElETe')
     # - a uri path. ex: 'zones/92cc1c82-e2fc-424b-a178-f24b18e3b67a' -- This will pull ingest.yourdomain.net's zone
-    def self.make_request(signed_object, uri, body = '', disable_ssl_verify)
+    def self.make_request(signed_object, uri, body = '')
       signed_headers = signed_object.signer.sign_request(
             http_method: signed_object.method,
             url: uri == '/' ? "#{signed_object.api_url}#{uri}" : "#{signed_object.api_url}/#{uri}",
@@ -53,10 +53,10 @@ module Vinyldns
       url = URI(signed_object.api_url)
       https = Net::HTTP.new(url.host, url.port)
       https.use_ssl = true ? url.scheme == "https" : https.use_ssl = false
-      if ENV['VINYLDNS_VERIFY_SSL'] || ENV['VINYLDNS_VERIFY_SSL'] == 'true' || ENV['VINYLDNS_VERIFY_SSL'].nil?
-        https.verify_mode = OpenSSL::SSL::VERIFY_PEER
-      elsif !ENV['VINYLDNS_VERIFY_SSL'] || ENV['VINYLDNS_VERIFY_SSL'] == 'false'
+      if ENV['VINYLDNS_VERIFY_SSL'] == false || ENV['VINYLDNS_VERIFY_SSL'] == 'false'
         https.verify_mode = OpenSSL::SSL::VERIFY_NONE
+      elsif ENV['VINYLDNS_VERIFY_SSL'] == true || ENV['VINYLDNS_VERIFY_SSL'] == 'true' || ENV['VINYLDNS_VERIFY_SSL'].nil?
+        https.verify_mode = OpenSSL::SSL::VERIFY_PEER
       else
         raise('Unsupported value for ENV[\'VINYLDNS_VERIFY_SSL\']!')
       end

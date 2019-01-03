@@ -1,5 +1,8 @@
-init:
-	pip install -r requirements.txt
+start-api:
+		./scripts/start_api
 
-test:
-	nosetests tests
+stop-api:
+		./scripts/stop_api
+
+test: start-api
+		./scripts/run_tests

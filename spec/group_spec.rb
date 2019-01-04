@@ -9,7 +9,21 @@
 # limitations under the License.
 require 'spec_helper'
 RSpec.describe Vinyldns::API::Group do
-  first_group = Vinyldns::API::Group.create("test-group", "foo@bar.com", [], [], "description")
+  before do
+    Vinyldns::API::Group.create("test-group", "foo@bar.com", [], [], "description")
+  end
+
+  after(:all) do
+    Vinyldns::API::Group.list_my_groups["groups"].each do |group|
+      Vinyldns::API::Group.delete(group["id"])
+    end
+  end
+
+  let(:first_group) do
+    Vinyldns::API::Group.list_my_groups["groups"].find do |group|
+      group["name"] == "test-group"
+    end
+  end
 
   describe '.create' do
     it 'can POST & receives 409 Conflict connecting to an already existing group' do

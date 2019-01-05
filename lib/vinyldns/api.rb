@@ -26,7 +26,7 @@ module Vinyldns
       @region = region
       if @method == 'GET'
         @content_type = content_type
-      elsif @method == 'POST' || @method == 'PUT'
+      elsif @method == 'POST' || @method == 'PUT' || @method == 'DELETE'
         @content_type = 'application/json'
       end
       # Generate a signed header for our HTTP requests
@@ -61,9 +61,11 @@ module Vinyldns
       request = Net::HTTP::Post.new(uri == '/' ? uri : "/#{uri}") if signed_object.method == 'POST'
       request = Net::HTTP::Put.new(uri == '/' ? uri : "/#{uri}") if signed_object.method == 'PUT'
       request = Net::HTTP::Get.new(uri == '/' ? uri : "/#{uri}") if signed_object.method == 'GET'
+      request = Net::HTTP::Delete.new(uri == '/' ? uri : "/#{uri}") if signed_object.method == 'DELETE'
       signed_headers.headers.each { |k, v| request[k] = v }
       request['content-type'] = signed_object.content_type
       request.body = body == '' ? body : body.to_json
+
       response = https.request(request)
       case response
       when Net::HTTPSuccess

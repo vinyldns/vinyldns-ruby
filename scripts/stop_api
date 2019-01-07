@@ -1,0 +1,4 @@
+#!/usr/bin/env bash
+
+./api/bin/remove-vinyl-containers.sh
+rm -rf ./api

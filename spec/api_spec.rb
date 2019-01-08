@@ -40,5 +40,10 @@ RSpec.describe Vinyldns::API do
       # Requires you to have at least one zone for your user/group
       expect(Vinyldns::API.make_request(api_request_object, 'maxItems=1').class.name).to eq('Net::HTTPUnauthorized')
     end
+
+    describe 'Make Requests with ENV[\'VINYLDNS_VERIFY_SSL\']' do
+      #TODO
+    end
+
   end
 end

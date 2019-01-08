@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+
+VINYLDNS_ACCESS_KEY_ID=okAccessKey \
+VINYLDNS_SECRET_ACCESS_KEY=okSecretKey \
+VINYLDNS_API_URL=http://localhost:9000 \
+bundle exec rspec

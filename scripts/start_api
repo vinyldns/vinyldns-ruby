@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+mkdir -p ./api
+git clone https://github.com/vinyldns/vinyldns ./api/
+./api/bin/docker-up-vinyldns.sh

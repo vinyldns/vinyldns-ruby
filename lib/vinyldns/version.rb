@@ -8,5 +8,5 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 module Vinyldns
-  VERSION = '0.8.0'.freeze
+  VERSION = '0.8.1'.freeze
 end

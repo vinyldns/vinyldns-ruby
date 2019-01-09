@@ -42,5 +42,5 @@ Gem::Specification.new do |gem|
   # Dependencies
   # Licensed uses the the libgit2 bindings for Ruby provided by rugged. rugged has its own dependencies - cmake and pkg-config - which you may need to install before you can install Licensed.
   # For example, on macOS with Homebrew: brew install cmake pkg-config and on Ubuntu: apt-get install cmake pkg-config.
-  gem.add_development_dependency 'licensed', '1.0.0'
+  gem.add_development_dependency 'licensed', '1.5.2'
 end

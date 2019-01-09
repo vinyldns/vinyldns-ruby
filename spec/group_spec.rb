@@ -8,8 +8,13 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 require 'spec_helper'
-RSpec.describe Vinyldns::API::Group do
-  first_group = Vinyldns::API::Group.list_my_groups['groups'].first
+
+describe Vinyldns::API::Group do
+
+  let(:first_group) do
+    # A group is expected to exist for now
+    Vinyldns::API::Group.list_my_groups['groups'].first
+  end
 
   describe '.create' do
     it 'can POST & receives 409 Conflict connecting to an already existing group' do

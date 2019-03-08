@@ -103,7 +103,8 @@ module Vinyldns
         def self.search(zone_id, name_filter = nil, max_items = 10, start_from = nil)
           api_request_object = Vinyldns::API.new('get')
           # UNI.encode matches all symbols that must be replaced with codes
-          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{zone_id}/#{@api_uri_addition}?#{name_filter.nil? ? '' : URI.encode_www_form(['recordNameFilter', name_filter], ['maxItems', max_items], ['startFrom', start_from])}")
+          parameters = "?maxItems=#{max_items}#{name_filter.nil? ? '' : "&recordNameFilter=#{name_filter}"}#{start_from.nil? ? '' : "&start_from=#{start_from}"}"
+          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{zone_id}/#{@api_uri_addition}#{parameters}")
         end
 
         def self.get_change(zone_id, id, change_id) # Use Vinyldns::API::Zone.list_changes to obtain change_id

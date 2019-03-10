@@ -10,38 +10,48 @@
 require 'spec_helper'
 RSpec.describe Vinyldns::API::Zone do
   before(:all) do
-    @first_group = Vinyldns::API::Group.create("test-group", "foo@bar.com", [], [], "description")
-    @first_zone = Vinyldns::API::Zone.connect('ok', @first_group['email'], @first_group['id'], isTest: true)
+    Vinyldns::API::Group.create("test-group", "foo@bar.com", [], [], "description")
+  end
+
+  let!(:first_group) do
+    Vinyldns::API::Group.list_my_groups["groups"].find do |group|
+      group["name"] == "test-group"
+    end
+  end
+
+  after(:each) do
+    Vinyldns::API::Zone.search["zones"].each do |zone|
+      Vinyldns::API::Zone.delete(zone["id"])
+      wait_until_zone_deleted(zone["id"])
+    end
   end
 
   after(:all) do
     Vinyldns::API::Group.list_my_groups["groups"].each do |group|
       Vinyldns::API::Group.delete(group["id"])
     end
-    Vinyldns::API::Zone.search()["zones"].each do |zone|
-      Vinyldns::API::Zone.delete(zone["id"])
-    end
   end
 
   describe '.connect' do
     it 'can POST & connect to a zone' do
-      expect(Vinyldns::API::Zone.connect('dummy', @first_group['email'], @first_group['id']).class.name).to eq('Hash')
+      expect(Vinyldns::API::Zone.connect('dummy', first_group['email'], first_group['id']).class.name).to eq('Hash')
     end
     it 'can POST & receives 409 Conflict connecting to an already existing zone' do
-      expect(Vinyldns::API::Zone.connect('ok', @first_group['email'], @first_group['id']).class.name).to eq('Net::HTTPConflict')
+      connection = Vinyldns::API::Zone.connect('ok', first_group['email'], first_group['id'], isTest: true)
+      wait_until_zone_active(connection['zone']['id'])
+      expect(Vinyldns::API::Zone.connect('ok', first_group['email'], first_group['id']).class.name).to eq('Net::HTTPConflict')
     end
     it 'raises error when group_id AND group_name_filter are nil arguments' do
-      expect { Vinyldns::API::Zone.connect('dummy', @first_group['email']) }.to raise_error(ArgumentError)
+      expect { Vinyldns::API::Zone.connect('dummy', first_group['email']) }.to raise_error(ArgumentError)
     end
     it 'raises error when Group.search is used and group_name doesn\'t find anything' do
-      expect { Vinyldns::API::Zone.connect('dummy', @first_group['email'], nil, 'test09999999').message }.to raise_error(ArgumentError, 'No group found for your group_name_filter. Please re-check the spelling so it\'s exact.')
+      expect { Vinyldns::API::Zone.connect('dummy', first_group['email'], nil, 'test09999999').message }.to raise_error(ArgumentError, 'No group found for your group_name_filter. Please re-check the spelling so it\'s exact.')
     end
   end
-
   describe '.update' do
     it 'can PUT & receives 400 Bad Request with "Missing Zone.name"' do
-      first_zone = Vinyldns::API::Zone.search('ok')["zones"].first
-      expect(Vinyldns::API::Zone.update(@first_zone['id'], { email: @first_zone['email'] }).body).to include('Missing Zone')
+      connection = Vinyldns::API::Zone.connect('ok', first_group['email'], first_group['id'], isTest: true)
+      expect(Vinyldns::API::Zone.update(connection['zone']['id'], { email: 'new-email' }).body).to include('Missing Zone')
     end
     it 'raises error when request_params argument is not hash' do
       expect { Vinyldns::API::Zone.update('', 'testing') }.to raise_error(ArgumentError, 'Request Parameters must be a Hash')
@@ -49,16 +59,16 @@ RSpec.describe Vinyldns::API::Zone do
   end
   describe '.get' do
     it 'does not raise an error' do
-      @first_zone = Vinyldns::API::Zone.search('ok')["zones"].first
-      expect { Vinyldns::API::Zone.get(@first_zone['id']) }.to_not raise_error
+      connection = Vinyldns::API::Zone.connect('ok', first_group['email'], first_group['id'], isTest: true)
+      request = wait_until_zone_active(connection['zone']['id'])
+      expect(Vinyldns::API::Zone.get(request['zone']['id']).class.name).to eq('Hash')
     end
   end
   describe '.search' do
-    it 'does not raise an error' do
-      expect { Vinyldns::API::Zone.search }.to_not raise_error
-    end
-    it 'returns something' do
-      expect(Vinyldns::API::Zone.search['zones'].any?).to be_truthy
+    it 'returns zones' do
+      connection = Vinyldns::API::Zone.connect('ok', first_group['email'], first_group['id'], isTest: true)
+      request = wait_until_zone_active(connection['zone']['id'])
+      expect(Vinyldns::API::Zone.search["zones"].length).to eq(1)
     end
   end
 
@@ -87,35 +97,19 @@ end
 
 RSpec.describe Vinyldns::API::Zone::BatchRecordChanges do
   before(:all) do
-    @first_group = Vinyldns::API::Group.create("another-test-group", "foo@bar.com", [], [], "description")
-    @first_zone = Vinyldns::API::Zone.connect('ok', @first_group['email'], @first_group['id'], isTest: true)
+    group = Vinyldns::API::Group.create("another-test-group", "foo@bar.com", [], [], "description")
+    zone_connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'], isTest: true)
+    wait_until_zone_active(zone_connection['zone']['id'])
   end
 
   after(:all) do
     Vinyldns::API::Group.list_my_groups["groups"].each do |group|
       Vinyldns::API::Group.delete(group["id"])
     end
-    Vinyldns::API::Zone.search()["zones"].each do |zone|
+    Vinyldns::API::Zone.search["zones"].each do |zone|
       Vinyldns::API::Zone.delete(zone["id"])
+      wait_until_zone_deleted(zone["id"])
     end
-  end
-
-  let(:max_retries) { 30 }
-  let(:retry_wait) { 0.05 }
-
-  def wait_until_batch_change_completed(batch_change)
-    change = batch_change
-    retries = max_retries
-    while !['Complete', 'Failed', 'PartialFailure'].include?(change['status']) && retries > 0
-      latest_change = Vinyldns::API::Zone::BatchRecordChanges.get(change['id'])
-      if(latest_change.class.name != "Net::HTTPNotFound")
-        change = latest_change
-      end
-      retries -= 1
-      sleep(retry_wait)
-    end
-    puts(change)
-    return change
   end
 
   describe '.create' do
@@ -160,6 +154,7 @@ RSpec.describe Vinyldns::API::Zone::BatchRecordChanges do
           ], 'vinyldns-ruby gem testing'
       )
       completed_batch = wait_until_batch_change_completed(request)
+      expect(completed_batch['changes'].length).to eq(2)
       expect(completed_batch['status']).to eq('Complete')
       expect(completed_batch['comments']).to eq('vinyldns-ruby gem testing')
     end
@@ -174,10 +169,12 @@ RSpec.describe Vinyldns::API::Zone::BatchRecordChanges do
         ], 'vinyldns-ruby gem testing'
       )
       completed_batch = wait_until_batch_change_completed(request)
-      expect(completed_batch['changes']).to eq([
-        {:inputName=>"testvinyldnsruby2.ok.", :changeType=>"DeleteRecordSet", :type=>"A"}
-      ])
+      expect(completed_batch['changes'].length).to eq(1)
+      expect(completed_batch['changes'][0].has_value?("testvinyldnsruby2.ok."))
+      expect(completed_batch['changes'][0].has_value?("DeleteRecordSet"))
+      expect(completed_batch['changes'][0].has_value?("A"))
       expect(completed_batch['comments']).to eq('vinyldns-ruby gem testing')
+      expect(completed_batch['status']).to eq('Complete')
     end
   end
   describe '.user_recent' do

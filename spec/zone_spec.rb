@@ -34,7 +34,9 @@ RSpec.describe Vinyldns::API::Zone do
 
   describe '.connect' do
     it 'can POST & connect to a zone' do
-      expect(Vinyldns::API::Zone.connect('dummy', first_group['email'], first_group['id']).class.name).to eq('Hash')
+      connection = Vinyldns::API::Zone.connect('ok', first_group['email'], first_group['id'], isTest: true)
+      wait_until_zone_active(connection['zone']['id'])
+      expect(connection['status']).to eq('Pending')
     end
     it 'can POST & receives 409 Conflict connecting to an already existing zone' do
       connection = Vinyldns::API::Zone.connect('ok', first_group['email'], first_group['id'], isTest: true)

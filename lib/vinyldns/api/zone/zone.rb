@@ -12,7 +12,7 @@ module Vinyldns
     class Zone
       @api_uri = 'zones'
 
-      def self.connect(name, distribution_email, group_id = nil, group_name_filter = nil)
+      def self.connect(name, distribution_email, group_id = nil, group_name_filter = nil, **optional_args)
         # Find the group ID using the group_name
         if (group_id.nil? || group_id.empty?) && (!group_name_filter.nil? && !group_name_filter.empty?)
           # Obtain admin group ID for body
@@ -25,10 +25,11 @@ module Vinyldns
         elsif (group_id.nil? || group_id.empty?) && (group_name_filter.nil? || group_name_filter.empty?)
           raise(ArgumentError, 'You must include a group_id or group_name_filter.')
         end # Else, we just use the group_id
-
+        parameters = { adminGroupId: group_id, name: name, email: distribution_email}
+        parameters.merge!(optional_args)
         # Post to API
         api_request_object = Vinyldns::API.new('post')
-        Vinyldns::API.make_request(api_request_object, @api_uri, { adminGroupId: group_id, name: name, email: distribution_email })
+        Vinyldns::API.make_request(api_request_object, @api_uri, parameters)
       end
 
       def self.update(id, request_params)
@@ -119,7 +120,8 @@ module Vinyldns
         def self.create(changes_array, comments = nil)
           raise(ArgumentError, 'changes_array parameter must be an Array') unless changes_array.is_a? Array
           api_request_object = Vinyldns::API.new('post')
-          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{@api_uri_addition}", { 'comments': comments.nil? ? 'Posted with Vinyldns-Ruby Gem' : comments, 'changes': changes_array })
+          parameters = { 'comments': comments, 'changes': changes_array }
+          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{@api_uri_addition}", parameters)
         end
 
         def self.get(id)

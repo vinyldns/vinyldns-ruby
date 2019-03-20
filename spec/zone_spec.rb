@@ -134,6 +134,12 @@ RSpec.describe Vinyldns::API::Zone::BatchRecordChanges do
     end
   end
 
+  let(:first_group) do
+    Vinyldns::API::Group.list_my_groups["groups"].find do |group|
+      group["name"] == "another-test-group"
+    end
+  end
+
   after(:each) do
     Vinyldns::API::Zone::RecordSet.search(first_zone['id'])['recordSets'].each do |rs|
       Vinyldns::API::Zone::RecordSet.delete(first_zone['id'], rs['id'])
@@ -195,6 +201,54 @@ RSpec.describe Vinyldns::API::Zone::BatchRecordChanges do
       expect(completed_batch['changes'].length).to eq(2)
       expect(completed_batch['status']).to eq('Complete')
       expect(completed_batch['comments']).to eq('vinyldns-ruby gem testing')
+    end
+    it 'can DELETE' do
+      request = Vinyldns::API::Zone::BatchRecordChanges.create(
+        [
+            {
+               'inputName': 'testvinyldnsruby2.ok.',
+               'changeType': 'DeleteRecordSet',
+               'type': 'A'
+            }
+        ], 'vinyldns-ruby gem testing'
+      )
+      completed_batch = wait_until_batch_change_completed(request)
+      expect(completed_batch['changes'].length).to eq(1)
+      expect(completed_batch['changes'][0].has_value?("testvinyldnsruby2.ok."))
+      expect(completed_batch['changes'][0].has_value?("DeleteRecordSet"))
+      expect(completed_batch['changes'][0].has_value?("A"))
+      expect(completed_batch['comments']).to eq('vinyldns-ruby gem testing')
+      expect(completed_batch['status']).to eq('Complete')
+    end
+    it 'can POST with ownerGroupId' do
+      request = Vinyldns::API::Zone::BatchRecordChanges.create(
+          [
+            {
+              'inputName': 'testvinyldnsruby3.ok.',
+              'changeType': 'Add',
+              'type': 'A',
+              "ttl": 3600,
+              "record": {
+                  "address": '1.1.1.2'
+              }
+            },
+            {
+              'inputName': 'testvinyldnsruby4.ok.',
+              'changeType': 'Add',
+              'type': 'A',
+              "ttl": 3600,
+              "record": {
+                  "address": '11.11.11.11'
+              }
+            }
+          ], 'vinyldns-ruby gem testing',
+             first_group['id']
+      )
+      completed_batch = wait_until_batch_change_completed(request)
+      expect(completed_batch['changes'].length).to eq(2)
+      expect(completed_batch['status']).to eq('Complete')
+      expect(completed_batch['comments']).to eq('vinyldns-ruby gem testing')
+      expect(completed_batch['ownerGroupId']).to eq(first_group['id'])
     end
     it 'can DELETE' do
       request = Vinyldns::API::Zone::BatchRecordChanges.create(

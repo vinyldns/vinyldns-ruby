@@ -117,10 +117,10 @@ module Vinyldns
         @api_uri = 'zones'
         @api_uri_addition = 'batchrecordchanges'
 
-        def self.create(changes_array, comments = nil)
+        def self.create(changes_array, comments = nil, group = nil)
           raise(ArgumentError, 'changes_array parameter must be an Array') unless changes_array.is_a? Array
           api_request_object = Vinyldns::API.new('post')
-          parameters = { 'comments': comments, 'changes': changes_array }
+          parameters = { 'comments': comments, 'changes': changes_array, 'ownerGroupId': group }
           Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{@api_uri_addition}", parameters)
         end
 

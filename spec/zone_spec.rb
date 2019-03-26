@@ -73,6 +73,54 @@ RSpec.describe Vinyldns::API::Zone do
       expect(Vinyldns::API::Zone.search["zones"].length).to eq(1)
     end
   end
+end
+
+describe Vinyldns::API::Zone::RecordSet do
+  before(:all) do
+    group = Vinyldns::API::Group.create("another-test-group", "foo@bar.com", [], [], "description")
+    first_zone_connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'], isTest: true)
+    wait_until_zone_active(first_zone_connection['zone']['id'])
+  end
+
+  let(:first_group) do
+    Vinyldns::API::Group.list_my_groups["groups"].find do |group|
+      group["name"] == "test-group"
+    end
+  end
+
+  let(:first_zone) do
+    Vinyldns::API::Zone.search["zones"].find do |zone|
+      zone["name"] == "ok."
+    end
+  end
+
+  after(:all) do
+    Vinyldns::API::Group.list_my_groups["groups"].each do |group|
+      Vinyldns::API::Group.delete(group["id"])
+    end
+
+    Vinyldns::API::Zone.search["zones"].each do |zone|
+      Vinyldns::API::Zone.delete(zone["id"])
+      wait_until_zone_deleted(zone["id"])
+    end
+  end
+
+  it 'creates a new record' do
+    request = Vinyldns::API::Zone::RecordSet.create(first_zone['id'], 'testrubyrecord', 'A', 200, [{'address': '1.1.1.1'}])
+    expect(request['changeType']).to eq("Create")
+  end
+
+  it 'updates' do
+    request = Vinyldns::API::Zone::RecordSet.create(first_zone['id'], 'testrubyrecord', 'A', 200, [{'address': '1.1.1.1'}])
+    expect(request['changeType']).to eq("Create")
+    wait_until_recordset_active(first_zone['id'], request['recordSet']['id'])
+
+    request['recordSet']['records'] = [{'address': '1.2.2.2'}]
+    update_request = Vinyldns::API::Zone::RecordSet.update_recordset(request['zone']['id'], request['recordSet']['id'], request['recordSet'])
+
+    expect(update_request['changeType']).to eq("Update")
+  end
+end
 
   # Sync is left out due to complexity of replies
   # describe '.sync' do
@@ -95,7 +143,6 @@ RSpec.describe Vinyldns::API::Zone do
   #     expect { Vinyldns::API::Zone.list_changes(@first_zone['id']).class.name }.to_not raise_error
   #   end
   # end
-end
 
 RSpec.describe Vinyldns::API::Zone::BatchRecordChanges do
   before(:all) do

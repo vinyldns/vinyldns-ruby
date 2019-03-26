@@ -77,10 +77,12 @@ module Vinyldns
         @api_uri = 'zones'
         @api_uri_addition = 'recordsets'
 
-        def self.create(zone_id, name, type, ttl, records_array)
+        def self.create(zone_id, name, type, ttl, records_array, owner_group_id = nil)
           # Post
           api_request_object = Vinyldns::API.new('post')
-          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{zone_id}/#{@api_uri_addition}", { 'name': name, 'type': type, 'ttl': ttl, 'records': records_array, 'zoneId': zone_id })
+          params = { 'name': name, 'type': type, 'ttl': ttl, 'records': records_array, 'zoneId': zone_id }
+          params.merge!({'ownerGroupId': owner_group_id}) if !owner_group_id.nil?
+          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{zone_id}/#{@api_uri_addition}", params)
         end
 
         def self.update(zone_id, request_params)

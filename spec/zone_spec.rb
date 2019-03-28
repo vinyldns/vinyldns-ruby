@@ -77,14 +77,14 @@ end
 
 describe Vinyldns::API::Zone::RecordSet do
   before(:all) do
-    group = Vinyldns::API::Group.create("another-test-group", "foo@bar.com", [], [], "description")
+    group = Vinyldns::API::Group.create("recordset-test-group", "foo@bar.com", [], [], "description")
     first_zone_connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'], isTest: true)
     wait_until_zone_active(first_zone_connection['zone']['id'])
   end
 
   let(:first_group) do
     Vinyldns::API::Group.list_my_groups["groups"].find do |group|
-      group["name"] == "test-group"
+      group["name"] == "recordset-test-group"
     end
   end
 
@@ -106,12 +106,12 @@ describe Vinyldns::API::Zone::RecordSet do
   end
 
   it 'creates a new record' do
-    request = Vinyldns::API::Zone::RecordSet.create(first_zone['id'], 'testrubyrecord', 'A', 200, [{'address': '1.1.1.1'}])
+    request = Vinyldns::API::Zone::RecordSet.create(first_zone['id'], 'testrubyrecordcreate', 'A', 200, [{'address': '1.1.1.1'}])
     expect(request['changeType']).to eq("Create")
   end
 
   it 'updates' do
-    request = Vinyldns::API::Zone::RecordSet.create(first_zone['id'], 'testrubyrecord', 'A', 200, [{'address': '1.1.1.1'}])
+    request = Vinyldns::API::Zone::RecordSet.create(first_zone['id'], 'testrubyrecordupdate', 'A', 200, [{'address': '1.1.1.1'}])
     expect(request['changeType']).to eq("Create")
     wait_until_recordset_active(first_zone['id'], request['recordSet']['id'])
 
@@ -121,28 +121,6 @@ describe Vinyldns::API::Zone::RecordSet do
     expect(update_request['changeType']).to eq("Update")
   end
 end
-
-  # Sync is left out due to complexity of replies
-  # describe '.sync' do
-  #   it "syncs" do
-  #     # Grab the first zone in users zone listing
-  #     p Vinyldns::API::Zone.sync(@first_zone['id']).body
-  #     expect()Vinyldns::API::Zone.sync(@first_zone['id']).body).to include('was recently synced')
-  #   end
-  # end
-
-  # describe '.history' do
-  #   it "does not raise an error" do
-  #     # Attempt to post it
-  #     expect {Vinyldns::API::Zone.history(@first_zone['id'])}.to_not raise_error
-  #   end
-  # end
-
-  # describe '.list_changes' do
-  #   it 'does not raise an error' do
-  #     expect { Vinyldns::API::Zone.list_changes(@first_zone['id']).class.name }.to_not raise_error
-  #   end
-  # end
 
 RSpec.describe Vinyldns::API::Zone::BatchRecordChanges do
   before(:all) do

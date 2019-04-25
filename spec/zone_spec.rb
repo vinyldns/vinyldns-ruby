@@ -250,24 +250,6 @@ RSpec.describe Vinyldns::API::Zone::BatchRecordChanges do
       expect(completed_batch['comments']).to eq('vinyldns-ruby gem testing')
       expect(completed_batch['ownerGroupId']).to eq(first_group['id'])
     end
-    it 'can DELETE' do
-      request = Vinyldns::API::Zone::BatchRecordChanges.create(
-        [
-            {
-               'inputName': 'testvinyldnsruby2.ok.',
-               'changeType': 'DeleteRecordSet',
-               'type': 'A'
-            }
-        ], 'vinyldns-ruby gem testing'
-      )
-      completed_batch = wait_until_batch_change_completed(request)
-      expect(completed_batch['changes'].length).to eq(1)
-      expect(completed_batch['changes'][0].has_value?("testvinyldnsruby2.ok."))
-      expect(completed_batch['changes'][0].has_value?("DeleteRecordSet"))
-      expect(completed_batch['changes'][0].has_value?("A"))
-      expect(completed_batch['comments']).to eq('vinyldns-ruby gem testing')
-      expect(completed_batch['status']).to eq('Complete')
-    end
   end
   describe '.user_recent' do
     it 'can obtain ID from user_recent' do

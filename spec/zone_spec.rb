@@ -27,12 +27,12 @@ RSpec.describe Vinyldns::API::Zone do
 
   describe '.connect' do
     it 'responds with the new zone' do
-      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'], isTest: true)
+      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
       wait_until_zone_active(connection['zone']['id'])
       expect(connection['status']).to eq('Pending')
     end
     it 'responds with 409 Conflict if the zone already exists' do
-      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'], isTest: true)
+      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
       wait_until_zone_active(connection['zone']['id'])
       expect(Vinyldns::API::Zone.connect('ok', group['email'], group['id']).class.name).to eq('Net::HTTPConflict')
     end
@@ -45,7 +45,7 @@ RSpec.describe Vinyldns::API::Zone do
   end
   describe '.update' do
     it 'can PUT & receives 400 Bad Request with "Missing Zone.name"' do
-      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'], isTest: true)
+      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
       expect(Vinyldns::API::Zone.update(connection['zone']['id'], { email: 'new-email' }).body).to include('Missing Zone')
     end
     it 'raises error when request_params argument is not hash' do
@@ -54,14 +54,14 @@ RSpec.describe Vinyldns::API::Zone do
   end
   describe '.get' do
     it 'does not raise an error' do
-      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'], isTest: true)
+      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
       request = wait_until_zone_active(connection['zone']['id'])
       expect(Vinyldns::API::Zone.get(request['zone']['id']).class.name).to eq('Hash')
     end
   end
   describe '.search' do
     it 'returns zones' do
-      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'], isTest: true)
+      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
       request = wait_until_zone_active(connection['zone']['id'])
       expect(Vinyldns::API::Zone.search["zones"].length).to eq(1)
     end
@@ -71,7 +71,7 @@ end
 describe Vinyldns::API::Zone::RecordSet do
   before(:all) do
     group = Vinyldns::API::Group.create("recordset-test-group", "foo@bar.com", [], [], "description")
-    first_zone_connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'], isTest: true)
+    first_zone_connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
     wait_until_zone_active(first_zone_connection['zone']['id'])
   end
 
@@ -124,7 +124,7 @@ end
 RSpec.describe Vinyldns::API::Zone::BatchRecordChanges do
   before(:all) do
     group = Vinyldns::API::Group.create("another-test-group", "foo@bar.com", [], [], "description")
-    zone_connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'], isTest: true)
+    zone_connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
     wait_until_zone_active(zone_connection['zone']['id'])
   end
 

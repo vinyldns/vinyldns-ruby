@@ -85,12 +85,12 @@ module Vinyldns
           Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{zone_id}/#{@api_uri_addition}", params)
         end
 
-        def self.update(zone_id, request_params)
+        def self.update(zone_id, id, request_params)
           # We use request_params here as values required by create may differ from update
           # Validations
           raise(ArgumentError, 'Request Parameters must be a Hash') unless request_params.is_a? Hash
           api_request_object = Vinyldns::API.new('put')
-          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{zone_id}", request_params)
+          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{zone_id}/recordsets/#{id}", request_params)
         end
 
         def self.delete(zone_id, id)

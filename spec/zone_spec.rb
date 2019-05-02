@@ -9,50 +9,43 @@
 # limitations under the License.
 require 'spec_helper'
 RSpec.describe Vinyldns::API::Zone do
-  before(:all) do
-    Vinyldns::API::Group.create("test-group", "foo@bar.com", [], [], "description")
-  end
 
-  let!(:first_group) do
-    Vinyldns::API::Group.list_my_groups["groups"].find do |group|
-      group["name"] == "test-group"
-    end
-  end
+  let(:group) {
+    Vinyldns::API::Group.create("test-group", "foo@bar.com", [], [], "description")
+  }
 
   after(:each) do
     Vinyldns::API::Zone.search["zones"].each do |zone|
       Vinyldns::API::Zone.delete(zone["id"])
       wait_until_zone_deleted(zone["id"])
     end
-  end
 
-  after(:all) do
-    Vinyldns::API::Group.list_my_groups["groups"].each do |group|
-      Vinyldns::API::Group.delete(group["id"])
+    Vinyldns::API::Group.list_my_groups["groups"].each do |g|
+      Vinyldns::API::Group.delete(g["id"])
     end
   end
 
   describe '.connect' do
-    it 'can POST & connect to a zone' do
-      connection = Vinyldns::API::Zone.connect('ok', first_group['email'], first_group['id'], isTest: true)
+    it 'responds with the new zone' do
+      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
       wait_until_zone_active(connection['zone']['id'])
       expect(connection['status']).to eq('Pending')
     end
-    it 'can POST & receives 409 Conflict connecting to an already existing zone' do
-      connection = Vinyldns::API::Zone.connect('ok', first_group['email'], first_group['id'], isTest: true)
+    it 'responds with 409 Conflict if the zone already exists' do
+      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
       wait_until_zone_active(connection['zone']['id'])
-      expect(Vinyldns::API::Zone.connect('ok', first_group['email'], first_group['id']).class.name).to eq('Net::HTTPConflict')
+      expect(Vinyldns::API::Zone.connect('ok', group['email'], group['id']).class.name).to eq('Net::HTTPConflict')
     end
     it 'raises error when group_id AND group_name_filter are nil arguments' do
-      expect { Vinyldns::API::Zone.connect('dummy', first_group['email']) }.to raise_error(ArgumentError)
+      expect { Vinyldns::API::Zone.connect('dummy', group['email']) }.to raise_error(ArgumentError)
     end
     it 'raises error when Group.search is used and group_name doesn\'t find anything' do
-      expect { Vinyldns::API::Zone.connect('dummy', first_group['email'], nil, 'test09999999').message }.to raise_error(ArgumentError, 'No group found for your group_name_filter. Please re-check the spelling so it\'s exact.')
+      expect { Vinyldns::API::Zone.connect('dummy', group['email'], nil, 'test09999999').message }.to raise_error(ArgumentError, 'No group found for your group_name_filter. Please re-check the spelling so it\'s exact.')
     end
   end
   describe '.update' do
     it 'can PUT & receives 400 Bad Request with "Missing Zone.name"' do
-      connection = Vinyldns::API::Zone.connect('ok', first_group['email'], first_group['id'], isTest: true)
+      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
       expect(Vinyldns::API::Zone.update(connection['zone']['id'], { email: 'new-email' }).body).to include('Missing Zone')
     end
     it 'raises error when request_params argument is not hash' do
@@ -61,47 +54,90 @@ RSpec.describe Vinyldns::API::Zone do
   end
   describe '.get' do
     it 'does not raise an error' do
-      connection = Vinyldns::API::Zone.connect('ok', first_group['email'], first_group['id'], isTest: true)
+      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
       request = wait_until_zone_active(connection['zone']['id'])
       expect(Vinyldns::API::Zone.get(request['zone']['id']).class.name).to eq('Hash')
     end
   end
   describe '.search' do
     it 'returns zones' do
-      connection = Vinyldns::API::Zone.connect('ok', first_group['email'], first_group['id'], isTest: true)
+      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
       request = wait_until_zone_active(connection['zone']['id'])
       expect(Vinyldns::API::Zone.search["zones"].length).to eq(1)
     end
   end
+end
 
-  # Sync is left out due to complexity of replies
-  # describe '.sync' do
-  #   it "syncs" do
-  #     # Grab the first zone in users zone listing
-  #     p Vinyldns::API::Zone.sync(@first_zone['id']).body
-  #     expect()Vinyldns::API::Zone.sync(@first_zone['id']).body).to include('was recently synced')
-  #   end
-  # end
+describe Vinyldns::API::Zone::RecordSet do
+  before(:all) do
+    group = Vinyldns::API::Group.create("recordset-test-group", "foo@bar.com", [], [], "description")
+    first_zone_connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
+    wait_until_zone_active(first_zone_connection['zone']['id'])
+  end
 
-  # describe '.history' do
-  #   it "does not raise an error" do
-  #     # Attempt to post it
-  #     expect {Vinyldns::API::Zone.history(@first_zone['id'])}.to_not raise_error
-  #   end
-  # end
+  let(:first_group) do
+    Vinyldns::API::Group.list_my_groups["groups"].find do |group|
+      group["name"] == "recordset-test-group"
+    end
+  end
 
-  # describe '.list_changes' do
-  #   it 'does not raise an error' do
-  #     expect { Vinyldns::API::Zone.list_changes(@first_zone['id']).class.name }.to_not raise_error
-  #   end
-  # end
+  let(:first_zone) do
+    Vinyldns::API::Zone.search["zones"].find do |zone|
+      zone["name"] == "ok."
+    end
+  end
+
+  after(:each) do
+    Vinyldns::API::Zone::RecordSet.search(first_zone['id'])['recordSets'].each do |rs|
+      Vinyldns::API::Zone::RecordSet.delete(first_zone['id'], rs['id'])
+    end
+  end
+
+  after(:all) do
+    Vinyldns::API::Zone.search["zones"].each do |zone|
+      Vinyldns::API::Zone.delete(zone["id"])
+      wait_until_zone_deleted(zone["id"])
+    end
+
+    Vinyldns::API::Group.list_my_groups["groups"].each do |g|
+      Vinyldns::API::Group.delete(g["id"])
+    end
+  end
+
+  it 'creates a new record' do
+    request = Vinyldns::API::Zone::RecordSet.create(first_zone['id'], 'testrubyrecordcreate', 'A', 200, [{'address': '1.1.1.1'}])
+    expect(request['changeType']).to eq("Create")
+  end
+
+  it 'updates' do
+    request = Vinyldns::API::Zone::RecordSet.create(first_zone['id'], 'testrubyrecordupdate', 'A', 200, [{'address': '1.1.1.1'}])
+    expect(request['changeType']).to eq("Create")
+    wait_until_recordset_active(first_zone['id'], request['recordSet']['id'])
+
+    request['recordSet']['records'] = [{'address': '1.2.2.2'}]
+    update_request = Vinyldns::API::Zone::RecordSet.update(request['zone']['id'], request['recordSet']['id'], request['recordSet'])
+
+    expect(update_request['changeType']).to eq("Update")
+  end
 end
 
 RSpec.describe Vinyldns::API::Zone::BatchRecordChanges do
   before(:all) do
     group = Vinyldns::API::Group.create("another-test-group", "foo@bar.com", [], [], "description")
-    zone_connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'], isTest: true)
+    zone_connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
     wait_until_zone_active(zone_connection['zone']['id'])
+  end
+
+  let(:first_zone) do
+    Vinyldns::API::Zone.search["zones"].find do |zone|
+      zone["name"] == "ok."
+    end
+  end
+
+  after(:each) do
+    Vinyldns::API::Zone::RecordSet.search(first_zone['id'])['recordSets'].each do |rs|
+      Vinyldns::API::Zone::RecordSet.delete(first_zone['id'], rs['id'])
+    end
   end
 
   after(:all) do

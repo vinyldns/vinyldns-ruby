@@ -43,6 +43,17 @@ module Helpers
     zone_request
   end
 
+  def wait_until_recordset_active(zone_id, recordset_id)
+    retries = MAX_RETRIES
+    zone_request = Vinyldns::API::Zone::RecordSet.get(zone_id, recordset_id)
+    while zone_request.class.name == ("Net::HTTPNotFound") && retries > 0
+      zone_request = Vinyldns::API::Zone::RecordSet.get(zone_id, recordset_id)
+      retries -= 1
+      sleep(RETRY_WAIT)
+    end
+    zone_request
+  end
+
   def wait_until_batch_change_completed(batch_change)
     change = batch_change
     retries = MAX_RETRIES

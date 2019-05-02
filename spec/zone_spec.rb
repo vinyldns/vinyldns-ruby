@@ -115,7 +115,7 @@ describe Vinyldns::API::Zone::RecordSet do
     wait_until_recordset_active(first_zone['id'], request['recordSet']['id'])
 
     request['recordSet']['records'] = [{'address': '1.2.2.2'}]
-    update_request = Vinyldns::API::Zone::RecordSet.update_recordset(request['zone']['id'], request['recordSet']['id'], request['recordSet'])
+    update_request = Vinyldns::API::Zone::RecordSet.update(request['zone']['id'], request['recordSet']['id'], request['recordSet'])
 
     expect(update_request['changeType']).to eq("Update")
   end

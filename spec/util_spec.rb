@@ -11,7 +11,8 @@ require 'spec_helper'
 RSpec.describe Vinyldns::Util do
   it "removes empty key-value pairs" do
     parameters = {one: "", two: 2, three: "three", four: nil}
-
-    expect(Vinyldns::Util.clean_request_payload(parameters)).to eq({two: 2, three: "three"})
+    result = Vinyldns::Util.clean_request_payload(parameters)
+    
+    expect(result).to eq({two: 2, three: "three"})
   end
 end

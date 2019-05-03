@@ -81,7 +81,7 @@ module Vinyldns
           # Post
           api_request_object = Vinyldns::API.new('post')
           params = { 'name': name, 'type': type, 'ttl': ttl, 'records': records_array, 'zoneId': zone_id }
-          params.merge!({'ownerGroupId': owner_group_id}) if !owner_group_id.nil?
+          params.merge!({'ownerGroupId': owner_group_id}) if !owner_group_id.nil? && !owner_group_id.empty?
           Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{zone_id}/#{@api_uri_addition}", params)
         end
 
@@ -123,8 +123,8 @@ module Vinyldns
           raise(ArgumentError, 'changes_array parameter must be an Array') unless changes_array.is_a? Array
           api_request_object = Vinyldns::API.new('post')
           parameters = {'changes': changes_array}
-          parameters.merge!({'comments': comments}) if !comments.nil?
-          parameters.merge!({'ownerGroupId': owner_group_id}) if !owner_group_id.nil?
+          parameters.merge!({'comments': comments}) if !comments.nil? && !comments.empty?
+          parameters.merge!({'ownerGroupId': owner_group_id}) if !owner_group_id.nil? && !owner_group_id.empty?
           Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{@api_uri_addition}", parameters)
         end
 

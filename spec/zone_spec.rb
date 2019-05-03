@@ -111,8 +111,6 @@ describe Vinyldns::API::Zone::RecordSet do
 
   it 'creates a new record with owner group ID' do
     request = Vinyldns::API::Zone::RecordSet.create(first_zone['id'], 'testrubyrecordcreate', 'A', 200, [{'address': '1.1.1.1'}], first_group['id'])
-    # wait_until_recordset_active(first_zone['id'], request['recordSet']['id'])
-
     expect(request['recordSet']['ownerGroupId']).to eq(first_group['id'])
   end
 

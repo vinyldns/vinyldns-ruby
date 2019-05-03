@@ -77,11 +77,11 @@ module Vinyldns
         @api_uri = 'zones'
         @api_uri_addition = 'recordsets'
 
-        def self.create(zone_id, name, type, ttl, records_array, owner_group_id = nil)
+        def self.create(zone_id, name, type, ttl, records_array, owner_group_id = "")
           # Post
           api_request_object = Vinyldns::API.new('post')
           params = { 'name': name, 'type': type, 'ttl': ttl, 'records': records_array, 'zoneId': zone_id }
-          params.merge!({'ownerGroupId': owner_group_id}) if !owner_group_id.nil? && !owner_group_id.empty?
+          params.merge!({'ownerGroupId': owner_group_id}) if !owner_group_id.empty?
           Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{zone_id}/#{@api_uri_addition}", params)
         end
 
@@ -119,12 +119,12 @@ module Vinyldns
         @api_uri = 'zones'
         @api_uri_addition = 'batchrecordchanges'
 
-        def self.create(changes_array, comments = nil, owner_group_id = nil)
+        def self.create(changes_array, comments = "", owner_group_id = "")
           raise(ArgumentError, 'changes_array parameter must be an Array') unless changes_array.is_a? Array
           api_request_object = Vinyldns::API.new('post')
           parameters = {'changes': changes_array}
-          parameters.merge!({'comments': comments}) if !comments.nil? && !comments.empty?
-          parameters.merge!({'ownerGroupId': owner_group_id}) if !owner_group_id.nil? && !owner_group_id.empty?
+          parameters.merge!({'comments': comments}) if !comments.empty?
+          parameters.merge!({'ownerGroupId': owner_group_id}) if !owner_group_id.empty?
           Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{@api_uri_addition}", parameters)
         end
 

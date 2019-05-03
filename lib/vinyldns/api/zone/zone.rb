@@ -122,7 +122,9 @@ module Vinyldns
         def self.create(changes_array, comments = nil, owner_group_id = nil)
           raise(ArgumentError, 'changes_array parameter must be an Array') unless changes_array.is_a? Array
           api_request_object = Vinyldns::API.new('post')
-          parameters = { 'comments': comments, 'changes': changes_array, 'ownerGroupId': owner_group_id }
+          parameters = {'changes': changes_array}
+          parameters.merge!({'comments': comments}) if !comments.nil?
+          parameters.merge!({'ownerGroupId': owner_group_id}) if !owner_group_id.nil?
           Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{@api_uri_addition}", parameters)
         end
 

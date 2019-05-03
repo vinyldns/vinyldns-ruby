@@ -7,12 +7,11 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
-require 'vinyldns/version'
-require 'vinyldns/api'
-require 'vinyldns/util'
+require 'spec_helper'
+RSpec.describe Vinyldns::Util do
+  it "removes empty key-value pairs" do
+    parameters = {one: "", two: 2, three: "three", four: nil}
 
-module Vinyldns
-  raise('You must have ENV[\'VINYLDNS_ACCESS_KEY_ID\'] set to use vinyldns-ruby') unless ENV['VINYLDNS_ACCESS_KEY_ID']
-  raise('You must have ENV[\'VINYLDNS_SECRET_ACCESS_KEY\'] set to use vinyldns-ruby') unless ENV['VINYLDNS_SECRET_ACCESS_KEY']
-  raise('You must have ENV[\'VINYLDNS_API_URL\'] set to use vinyldns-ruby') unless ENV['VINYLDNS_API_URL']
+    expect(Vinyldns::Util.clean_request_payload(parameters)).to eq({two: 2, three: "three"})
+  end
 end

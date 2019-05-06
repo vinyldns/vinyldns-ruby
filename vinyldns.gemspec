@@ -39,6 +39,8 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency 'bundler', '~> 1.13'
   gem.add_development_dependency 'rake', '~> 12.0'
   gem.add_development_dependency 'rspec', '3.7.0'
+  gem.add_development_dependency 'rb-readline', '~> 0.5.5'
+  gem.add_development_dependency 'pry', '~> 0.10.3'
   # Dependencies
   # Licensed uses the the libgit2 bindings for Ruby provided by rugged. rugged has its own dependencies - cmake and pkg-config - which you may need to install before you can install Licensed.
   # For example, on macOS with Homebrew: brew install cmake pkg-config and on Ubuntu: apt-get install cmake pkg-config.

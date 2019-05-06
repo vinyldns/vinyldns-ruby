@@ -8,7 +8,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 require 'spec_helper'
-RSpec.describe Vinyldns::API::Zone do
+describe Vinyldns::API::Zone do
 
   let(:group) {
     Vinyldns::API::Group.create("test-group", "foo@bar.com", [], [], "description")
@@ -127,7 +127,7 @@ describe Vinyldns::API::Zone::RecordSet do
   end
 end
 
-RSpec.describe Vinyldns::API::Zone::BatchRecordChanges do
+describe Vinyldns::API::Zone::BatchRecordChanges do
   before(:all) do
     group = Vinyldns::API::Group.create("another-test-group", "foo@bar.com", [], [], "description")
     zone_connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])

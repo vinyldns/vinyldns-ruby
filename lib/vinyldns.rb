@@ -9,7 +9,6 @@
 # limitations under the License.
 require 'vinyldns/version'
 require 'vinyldns/api'
-require 'vinyldns/util'
 
 module Vinyldns
   raise('You must have ENV[\'VINYLDNS_ACCESS_KEY_ID\'] set to use vinyldns-ruby') unless ENV['VINYLDNS_ACCESS_KEY_ID']

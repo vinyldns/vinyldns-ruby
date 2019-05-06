@@ -8,7 +8,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 require 'spec_helper'
-RSpec.describe Vinyldns::API::Zone do
+describe Vinyldns::API::Zone do
 
   let(:group) {
     Vinyldns::API::Group.create("test-group", "foo@bar.com", [], [], "description")
@@ -109,6 +109,12 @@ describe Vinyldns::API::Zone::RecordSet do
     expect(request['changeType']).to eq("Create")
   end
 
+  it 'creates a new record with owner group ID' do
+    request = Vinyldns::API::Zone::RecordSet.create(first_zone['id'], 'recordcreatewithowner', 'A', 200, [{'address': '1.1.1.1'}], first_group['id'])
+    wait_until_recordset_active(first_zone['id'], request['recordSet']['id'])
+    expect(request['recordSet']['ownerGroupId']).to eq(first_group['id'])
+  end
+
   it 'updates' do
     request = Vinyldns::API::Zone::RecordSet.create(first_zone['id'], 'testrubyrecordupdate', 'A', 200, [{'address': '1.1.1.1'}])
     expect(request['changeType']).to eq("Create")
@@ -121,7 +127,7 @@ describe Vinyldns::API::Zone::RecordSet do
   end
 end
 
-RSpec.describe Vinyldns::API::Zone::BatchRecordChanges do
+describe Vinyldns::API::Zone::BatchRecordChanges do
   before(:all) do
     group = Vinyldns::API::Group.create("another-test-group", "foo@bar.com", [], [], "description")
     zone_connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
@@ -131,6 +137,12 @@ RSpec.describe Vinyldns::API::Zone::BatchRecordChanges do
   let(:first_zone) do
     Vinyldns::API::Zone.search["zones"].find do |zone|
       zone["name"] == "ok."
+    end
+  end
+
+  let(:first_group) do
+    Vinyldns::API::Group.list_my_groups["groups"].find do |group|
+      group["name"] == "another-test-group"
     end
   end
 
@@ -213,6 +225,36 @@ RSpec.describe Vinyldns::API::Zone::BatchRecordChanges do
       expect(completed_batch['changes'][0].has_value?("A"))
       expect(completed_batch['comments']).to eq('vinyldns-ruby gem testing')
       expect(completed_batch['status']).to eq('Complete')
+    end
+    it 'can POST with ownerGroupId' do
+      request = Vinyldns::API::Zone::BatchRecordChanges.create(
+          [
+            {
+              'inputName': 'testvinyldnsruby3.ok.',
+              'changeType': 'Add',
+              'type': 'A',
+              "ttl": 3600,
+              "record": {
+                  "address": '1.1.1.2'
+              }
+            },
+            {
+              'inputName': 'testvinyldnsruby4.ok.',
+              'changeType': 'Add',
+              'type': 'A',
+              "ttl": 3600,
+              "record": {
+                  "address": '11.11.11.11'
+              }
+            }
+          ], 'vinyldns-ruby gem testing',
+             first_group['id']
+      )
+      completed_batch = wait_until_batch_change_completed(request)
+      expect(completed_batch['changes'].length).to eq(2)
+      expect(completed_batch['status']).to eq('Complete')
+      expect(completed_batch['comments']).to eq('vinyldns-ruby gem testing')
+      expect(completed_batch['ownerGroupId']).to eq(first_group['id'])
     end
   end
   describe '.user_recent' do

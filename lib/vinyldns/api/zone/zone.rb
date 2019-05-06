@@ -7,6 +7,7 @@
 # WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 # See the License for the specific language governing permissions and
 # limitations under the License.
+require_relative '../../util/util'
 module Vinyldns
   class API
     class Zone
@@ -77,11 +78,11 @@ module Vinyldns
         @api_uri = 'zones'
         @api_uri_addition = 'recordsets'
 
-        def self.create(zone_id, name, type, ttl, records_array, owner_group_id = nil)
+        def self.create(zone_id, name, type, ttl, records_array, owner_group_id = "")
           # Post
           api_request_object = Vinyldns::API.new('post')
-          params = { 'name': name, 'type': type, 'ttl': ttl, 'records': records_array, 'zoneId': zone_id }
-          params.merge!({'ownerGroupId': owner_group_id}) if !owner_group_id.nil?
+          payload = { 'name': name, 'type': type, 'ttl': ttl, 'records': records_array, 'zoneId': zone_id, 'ownerGroupId': owner_group_id }
+          params = Vinyldns::Util.clean_request_payload(payload)
           Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{zone_id}/#{@api_uri_addition}", params)
         end
 
@@ -119,11 +120,12 @@ module Vinyldns
         @api_uri = 'zones'
         @api_uri_addition = 'batchrecordchanges'
 
-        def self.create(changes_array, comments = nil)
+        def self.create(changes_array, comments="", owner_group_id="")
           raise(ArgumentError, 'changes_array parameter must be an Array') unless changes_array.is_a? Array
           api_request_object = Vinyldns::API.new('post')
-          parameters = { 'comments': comments, 'changes': changes_array }
-          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{@api_uri_addition}", parameters)
+          payload = {'changes': changes_array, 'comments': comments, 'ownerGroupId': owner_group_id}
+          params = Vinyldns::Util.clean_request_payload(payload)
+          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{@api_uri_addition}", params)
         end
 
         def self.get(id)

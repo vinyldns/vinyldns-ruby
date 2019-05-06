@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Copyright 2018 Comcast Cable Communications Management, LLC
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -10,18 +12,18 @@
 require 'spec_helper'
 RSpec.describe Vinyldns::API::Group do
   before do
-    Vinyldns::API::Group.create("test-group", "foo@bar.com", [], [], "description")
+    Vinyldns::API::Group.create('test-group', 'foo@bar.com', [], [], 'description')
   end
 
   after(:all) do
-    Vinyldns::API::Group.list_my_groups["groups"].each do |group|
-      Vinyldns::API::Group.delete(group["id"])
+    Vinyldns::API::Group.list_my_groups['groups'].each do |group|
+      Vinyldns::API::Group.delete(group['id'])
     end
   end
 
   let(:first_group) do
-    Vinyldns::API::Group.list_my_groups["groups"].find do |group|
-      group["name"] == "test-group"
+    Vinyldns::API::Group.list_my_groups['groups'].find do |group|
+      group['name'] == 'test-group'
     end
   end
 

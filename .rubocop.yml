@@ -1,3 +1,5 @@
+AllCops:
+  TargetRubyVersion: 2.4
 Style/Documentation:
   Enabled: false
 Style/BracesAroundHashParameters:
@@ -6,6 +8,12 @@ Style/CommentedKeyword:
   Enabled: false
 Style/BlockDelimiters:
   EnforcedStyle: braces_for_chaining
+Layout/LeadingCommentSpace:
+  Enabled: false
+Layout/ClosingParenthesisIndentation:
+  Enabled: false
+Layout/AlignArray:
+  Enabled: false
 Metrics/LineLength:
   Enabled: false
 Metrics/CyclomaticComplexity:
@@ -17,16 +25,4 @@ Metrics/MethodLength:
 Metrics/AbcSize:
   Enabled: false
 Metrics/BlockLength:
-  Enabled: false
-Layout/LeadingCommentSpace:
-  Enabled: false
-Layout/FirstParameterIndentation:
-  Enabled: false
-Layout/ClosingParenthesisIndentation:
-  Enabled: false
-Layout/IndentArray:
-  Enabled: false
-Layout/IndentHash:
-  Enabled: false
-Layout/AlignArray:
   Enabled: false

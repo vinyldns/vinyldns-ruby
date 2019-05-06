@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Copyright 2018 Comcast Cable Communications Management, LLC
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -9,19 +11,18 @@
 # limitations under the License.
 require 'spec_helper'
 describe Vinyldns::API::Zone do
-
-  let(:group) {
-    Vinyldns::API::Group.create("test-group", "foo@bar.com", [], [], "description")
-  }
+  let(:group) do
+    Vinyldns::API::Group.create('test-group', 'foo@bar.com', [], [], 'description')
+  end
 
   after(:each) do
-    Vinyldns::API::Zone.search["zones"].each do |zone|
-      Vinyldns::API::Zone.delete(zone["id"])
-      wait_until_zone_deleted(zone["id"])
+    Vinyldns::API::Zone.search['zones'].each do |zone|
+      Vinyldns::API::Zone.delete(zone['id'])
+      wait_until_zone_deleted(zone['id'])
     end
 
-    Vinyldns::API::Group.list_my_groups["groups"].each do |g|
-      Vinyldns::API::Group.delete(g["id"])
+    Vinyldns::API::Group.list_my_groups['groups'].each do |g|
+      Vinyldns::API::Group.delete(g['id'])
     end
   end
 
@@ -62,28 +63,28 @@ describe Vinyldns::API::Zone do
   describe '.search' do
     it 'returns zones' do
       connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
-      request = wait_until_zone_active(connection['zone']['id'])
-      expect(Vinyldns::API::Zone.search["zones"].length).to eq(1)
+      wait_until_zone_active(connection['zone']['id'])
+      expect(Vinyldns::API::Zone.search['zones'].length).to eq(1)
     end
   end
 end
 
 describe Vinyldns::API::Zone::RecordSet do
   before(:all) do
-    group = Vinyldns::API::Group.create("recordset-test-group", "foo@bar.com", [], [], "description")
+    group = Vinyldns::API::Group.create('recordset-test-group', 'foo@bar.com', [], [], 'description')
     first_zone_connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
     wait_until_zone_active(first_zone_connection['zone']['id'])
   end
 
   let(:first_group) do
-    Vinyldns::API::Group.list_my_groups["groups"].find do |group|
-      group["name"] == "recordset-test-group"
+    Vinyldns::API::Group.list_my_groups['groups'].find do |group|
+      group['name'] == 'recordset-test-group'
     end
   end
 
   let(:first_zone) do
-    Vinyldns::API::Zone.search["zones"].find do |zone|
-      zone["name"] == "ok."
+    Vinyldns::API::Zone.search['zones'].find do |zone|
+      zone['name'] == 'ok.'
     end
   end
 
@@ -94,55 +95,55 @@ describe Vinyldns::API::Zone::RecordSet do
   end
 
   after(:all) do
-    Vinyldns::API::Zone.search["zones"].each do |zone|
-      Vinyldns::API::Zone.delete(zone["id"])
-      wait_until_zone_deleted(zone["id"])
+    Vinyldns::API::Zone.search['zones'].each do |zone|
+      Vinyldns::API::Zone.delete(zone['id'])
+      wait_until_zone_deleted(zone['id'])
     end
 
-    Vinyldns::API::Group.list_my_groups["groups"].each do |g|
-      Vinyldns::API::Group.delete(g["id"])
+    Vinyldns::API::Group.list_my_groups['groups'].each do |g|
+      Vinyldns::API::Group.delete(g['id'])
     end
   end
 
   it 'creates a new record' do
-    request = Vinyldns::API::Zone::RecordSet.create(first_zone['id'], 'testrubyrecordcreate', 'A', 200, [{'address': '1.1.1.1'}])
-    expect(request['changeType']).to eq("Create")
+    request = Vinyldns::API::Zone::RecordSet.create(first_zone['id'], 'testrubyrecordcreate', 'A', 200, [{ 'address': '1.1.1.1' }])
+    expect(request['changeType']).to eq('Create')
   end
 
   it 'creates a new record with owner group ID' do
-    request = Vinyldns::API::Zone::RecordSet.create(first_zone['id'], 'recordcreatewithowner', 'A', 200, [{'address': '1.1.1.1'}], first_group['id'])
+    request = Vinyldns::API::Zone::RecordSet.create(first_zone['id'], 'recordcreatewithowner', 'A', 200, [{ 'address': '1.1.1.1' }], first_group['id'])
     wait_until_recordset_active(first_zone['id'], request['recordSet']['id'])
     expect(request['recordSet']['ownerGroupId']).to eq(first_group['id'])
   end
 
   it 'updates' do
-    request = Vinyldns::API::Zone::RecordSet.create(first_zone['id'], 'testrubyrecordupdate', 'A', 200, [{'address': '1.1.1.1'}])
-    expect(request['changeType']).to eq("Create")
+    request = Vinyldns::API::Zone::RecordSet.create(first_zone['id'], 'testrubyrecordupdate', 'A', 200, [{ 'address': '1.1.1.1' }])
+    expect(request['changeType']).to eq('Create')
     wait_until_recordset_active(first_zone['id'], request['recordSet']['id'])
 
-    request['recordSet']['records'] = [{'address': '1.2.2.2'}]
+    request['recordSet']['records'] = [{ 'address': '1.2.2.2' }]
     update_request = Vinyldns::API::Zone::RecordSet.update(request['zone']['id'], request['recordSet']['id'], request['recordSet'])
 
-    expect(update_request['changeType']).to eq("Update")
+    expect(update_request['changeType']).to eq('Update')
   end
 end
 
 describe Vinyldns::API::Zone::BatchRecordChanges do
   before(:all) do
-    group = Vinyldns::API::Group.create("another-test-group", "foo@bar.com", [], [], "description")
+    group = Vinyldns::API::Group.create('another-test-group', 'foo@bar.com', [], [], 'description')
     zone_connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
     wait_until_zone_active(zone_connection['zone']['id'])
   end
 
   let(:first_zone) do
-    Vinyldns::API::Zone.search["zones"].find do |zone|
-      zone["name"] == "ok."
+    Vinyldns::API::Zone.search['zones'].find do |zone|
+      zone['name'] == 'ok.'
     end
   end
 
   let(:first_group) do
-    Vinyldns::API::Group.list_my_groups["groups"].find do |group|
-      group["name"] == "another-test-group"
+    Vinyldns::API::Group.list_my_groups['groups'].find do |group|
+      group['name'] == 'another-test-group'
     end
   end
 
@@ -153,12 +154,12 @@ describe Vinyldns::API::Zone::BatchRecordChanges do
   end
 
   after(:all) do
-    Vinyldns::API::Group.list_my_groups["groups"].each do |group|
-      Vinyldns::API::Group.delete(group["id"])
+    Vinyldns::API::Group.list_my_groups['groups'].each do |group|
+      Vinyldns::API::Group.delete(group['id'])
     end
-    Vinyldns::API::Zone.search["zones"].each do |zone|
-      Vinyldns::API::Zone.delete(zone["id"])
-      wait_until_zone_deleted(zone["id"])
+    Vinyldns::API::Zone.search['zones'].each do |zone|
+      Vinyldns::API::Zone.delete(zone['id'])
+      wait_until_zone_deleted(zone['id'])
     end
   end
 
@@ -169,39 +170,39 @@ describe Vinyldns::API::Zone::BatchRecordChanges do
     end
     it 'raises error if zones don\'t exist to delete' do
       request = Vinyldns::API::Zone::BatchRecordChanges.create(
-          [
-             {
-                 'inputName': 'testvinyldnsruby.dodo.',
-                 'changeType': 'DeleteRecordSet',
-                 'type': 'A'
-             }
-          ], 'vinyldns-ruby gem testing'
+        [
+          {
+            'inputName': 'testvinyldnsruby.dodo.',
+            'changeType': 'DeleteRecordSet',
+            'type': 'A'
+          }
+        ], 'vinyldns-ruby gem testing'
       )
-      expect(request.class.name).to eq("Net::HTTPBadRequest")
-      expect(request.body).to include("does not exist in VinylDNS")
+      expect(request.class.name).to eq('Net::HTTPBadRequest')
+      expect(request.body).to include('does not exist in VinylDNS')
     end
     it 'can POST' do
       request = Vinyldns::API::Zone::BatchRecordChanges.create(
-          [
-            {
-              'inputName': 'testvinyldnsruby.ok.',
-              'changeType': 'Add',
-              'type': 'A',
-              "ttl": 3600,
-              "record": {
-                  "address": '1.1.1.2'
-              }
-            },
-            {
-              'inputName': 'testvinyldnsruby2.ok.',
-              'changeType': 'Add',
-              'type': 'A',
-              "ttl": 3600,
-              "record": {
-                  "address": '11.11.11.11'
-              }
+        [
+          {
+            'inputName': 'testvinyldnsruby.ok.',
+            'changeType': 'Add',
+            'type': 'A',
+            "ttl": 3600,
+            "record": {
+              "address": '1.1.1.2'
             }
-          ], 'vinyldns-ruby gem testing'
+          },
+          {
+            'inputName': 'testvinyldnsruby2.ok.',
+            'changeType': 'Add',
+            'type': 'A',
+            "ttl": 3600,
+            "record": {
+              "address": '11.11.11.11'
+            }
+          }
+        ], 'vinyldns-ruby gem testing'
       )
       completed_batch = wait_until_batch_change_completed(request)
       expect(completed_batch['changes'].length).to eq(2)
@@ -211,44 +212,44 @@ describe Vinyldns::API::Zone::BatchRecordChanges do
     it 'can DELETE' do
       request = Vinyldns::API::Zone::BatchRecordChanges.create(
         [
-            {
-               'inputName': 'testvinyldnsruby2.ok.',
-               'changeType': 'DeleteRecordSet',
-               'type': 'A'
-            }
+          {
+            'inputName': 'testvinyldnsruby2.ok.',
+            'changeType': 'DeleteRecordSet',
+            'type': 'A'
+          }
         ], 'vinyldns-ruby gem testing'
       )
       completed_batch = wait_until_batch_change_completed(request)
       expect(completed_batch['changes'].length).to eq(1)
-      expect(completed_batch['changes'][0].has_value?("testvinyldnsruby2.ok."))
-      expect(completed_batch['changes'][0].has_value?("DeleteRecordSet"))
-      expect(completed_batch['changes'][0].has_value?("A"))
+      expect(completed_batch['changes'][0].value?('testvinyldnsruby2.ok.'))
+      expect(completed_batch['changes'][0].value?('DeleteRecordSet'))
+      expect(completed_batch['changes'][0].value?('A'))
       expect(completed_batch['comments']).to eq('vinyldns-ruby gem testing')
       expect(completed_batch['status']).to eq('Complete')
     end
     it 'can POST with ownerGroupId' do
       request = Vinyldns::API::Zone::BatchRecordChanges.create(
-          [
-            {
-              'inputName': 'testvinyldnsruby3.ok.',
-              'changeType': 'Add',
-              'type': 'A',
-              "ttl": 3600,
-              "record": {
-                  "address": '1.1.1.2'
-              }
-            },
-            {
-              'inputName': 'testvinyldnsruby4.ok.',
-              'changeType': 'Add',
-              'type': 'A',
-              "ttl": 3600,
-              "record": {
-                  "address": '11.11.11.11'
-              }
+        [
+          {
+            'inputName': 'testvinyldnsruby3.ok.',
+            'changeType': 'Add',
+            'type': 'A',
+            "ttl": 3600,
+            "record": {
+              "address": '1.1.1.2'
             }
-          ], 'vinyldns-ruby gem testing',
-             first_group['id']
+          },
+          {
+            'inputName': 'testvinyldnsruby4.ok.',
+            'changeType': 'Add',
+            'type': 'A',
+            "ttl": 3600,
+            "record": {
+              "address": '11.11.11.11'
+            }
+          }
+        ], 'vinyldns-ruby gem testing',
+        first_group['id']
       )
       completed_batch = wait_until_batch_change_completed(request)
       expect(completed_batch['changes'].length).to eq(2)

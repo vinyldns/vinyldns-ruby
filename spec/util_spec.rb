@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Copyright 2018 Comcast Cable Communications Management, LLC
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -9,10 +11,10 @@
 # limitations under the License.
 require 'spec_helper'
 describe Vinyldns::Util do
-  it "removes empty key-value pairs" do
-    parameters = {one: "", two: 2, three: "three", four: nil}
+  it 'removes empty key-value pairs' do
+    parameters = { one: '', two: 2, three: 'three', four: nil }
     result = Vinyldns::Util.clean_request_payload(parameters)
 
-    expect(result).to eq({two: 2, three: "three"})
+    expect(result).to eq({ two: 2, three: 'three' })
   end
 end

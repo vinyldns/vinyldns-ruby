@@ -1,3 +1,4 @@
+# frozen_string_literal: true
 # Copyright 2018 Comcast Cable Communications Management, LLC
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -37,10 +38,11 @@ Gem::Specification.new do |gem|
   gem.require_paths = ['lib']
   gem.add_runtime_dependency 'aws-sigv4', '~> 1.0'
   gem.add_development_dependency 'bundler', '~> 1.13'
-  gem.add_development_dependency 'rake', '~> 12.0'
-  gem.add_development_dependency 'rspec', '3.7.0'
-  gem.add_development_dependency 'rb-readline', '~> 0.5.5'
   gem.add_development_dependency 'pry', '~> 0.10.3'
+  gem.add_development_dependency 'rake', '~> 12.0'
+  gem.add_development_dependency 'rb-readline', '~> 0.5.5'
+  gem.add_development_dependency 'rspec', '3.7.0'
+  gem.add_development_dependency 'rubocop', '~> 0.68.1'
   # Dependencies
   # Licensed uses the the libgit2 bindings for Ruby provided by rugged. rugged has its own dependencies - cmake and pkg-config - which you may need to install before you can install Licensed.
   # For example, on macOS with Homebrew: brew install cmake pkg-config and on Ubuntu: apt-get install cmake pkg-config.

@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Copyright 2018 Comcast Cable Communications Management, LLC
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -21,6 +23,7 @@ module Vinyldns
         # We use request_params here as require arguments as create arguments may differ from update
         # Validations
         raise(ArgumentError, 'Request Parameters must be a Hash') unless request_params.is_a? Hash
+
         api_request_object = Vinyldns::API.new('put')
         Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{id}", request_params)
       end

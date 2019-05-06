@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Copyright 2018 Comcast Cable Communications Management, LLC
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -24,7 +26,7 @@ module Helpers
   def wait_until_zone_active(zone_id)
     retries = MAX_RETRIES
     zone_request = Vinyldns::API::Zone.get(zone_id)
-    while zone_request.class.name == ("Net::HTTPNotFound") && retries > 0
+    while zone_request.class.name == 'Net::HTTPNotFound' && retries.positive?
       zone_request = Vinyldns::API::Zone.get(zone_id)
       retries -= 1
       sleep(RETRY_WAIT)
@@ -35,7 +37,7 @@ module Helpers
   def wait_until_zone_deleted(zone_id)
     retries = MAX_RETRIES
     zone_request = Vinyldns::API::Zone.delete(zone_id)
-    while zone_request.class.name != ("Net::HTTPNotFound") && retries > 0
+    while zone_request.class.name != 'Net::HTTPNotFound' && retries.positive?
       zone_request = Vinyldns::API::Zone.get(zone_id)
       retries -= 1
       sleep(RETRY_WAIT)
@@ -46,7 +48,7 @@ module Helpers
   def wait_until_recordset_active(zone_id, recordset_id)
     retries = MAX_RETRIES
     recordset_request = Vinyldns::API::Zone::RecordSet.get(zone_id, recordset_id)
-    while recordset_request.class.name == ("Net::HTTPNotFound") && retries > 0
+    while recordset_request.class.name == 'Net::HTTPNotFound' && retries.positive?
       recordset_request = Vinyldns::API::Zone::RecordSet.get(zone_id, recordset_id)
       retries -= 1
       sleep(RETRY_WAIT)
@@ -57,15 +59,13 @@ module Helpers
   def wait_until_batch_change_completed(batch_change)
     change = batch_change
     retries = MAX_RETRIES
-    while !['Complete', 'Failed', 'PartialFailure'].include?(change['status']) && retries > 0
+    while !%w[Complete Failed PartialFailure].include?(change['status']) && retries.positive?
       latest_change = Vinyldns::API::Zone::BatchRecordChanges.get(change['id'])
-      if(latest_change.class.name != "Net::HTTPNotFound")
-        change = latest_change
-      end
+      change = latest_change if latest_change.class.name != 'Net::HTTPNotFound'
       retries -= 1
       sleep(RETRY_WAIT)
     end
-    return change
+    change
   end
 end
 

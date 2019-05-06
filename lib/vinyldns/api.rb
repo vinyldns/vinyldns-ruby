@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Copyright 2018 Comcast Cable Communications Management, LLC
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -23,6 +25,7 @@ module Vinyldns
       @api_url = api_url
       @method = method.upcase
       raise(ArgumentError, 'Not a valid http request method') unless %w[GET HEAD POST PUT DELETE TRACE OPTIONS CONNECT PATCH].include?(@method)
+
       @region = region
       if @method == 'GET'
         @content_type = content_type
@@ -32,11 +35,11 @@ module Vinyldns
       # Generate a signed header for our HTTP requests
       # http://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/Sigv4/Signer.html
       @signer = Aws::Sigv4::Signer.new(
-          service: 'VinylDNS',
-          region: 'us-east-1',
-          access_key_id: ENV['VINYLDNS_ACCESS_KEY_ID'],
-          secret_access_key: ENV['VINYLDNS_SECRET_ACCESS_KEY'],
-          apply_checksum_header: false # Required for posting body in make_request : http://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/Sigv4/Signer.html : If the 'X-Amz-Content-Sha256' header is set, the :body is optional and will not be read.
+        service: 'VinylDNS',
+        region: 'us-east-1',
+        access_key_id: ENV['VINYLDNS_ACCESS_KEY_ID'],
+        secret_access_key: ENV['VINYLDNS_SECRET_ACCESS_KEY'],
+        apply_checksum_header: false # Required for posting body in make_request : http://docs.aws.amazon.com/sdk-for-ruby/v3/api/Aws/Sigv4/Signer.html : If the 'X-Amz-Content-Sha256' header is set, the :body is optional and will not be read.
       )
     end
 
@@ -45,19 +48,19 @@ module Vinyldns
     # - a uri path. ex: 'zones/92cc1c82-e2fc-424b-a178-f24b18e3b67a' -- This will pull ingest.yourdomain.net's zone
     def self.make_request(signed_object, uri, body = '')
       signed_headers = signed_object.signer.sign_request(
-            http_method: signed_object.method,
-            url: uri == '/' ? "#{signed_object.api_url}#{uri}" : "#{signed_object.api_url}/#{uri}",
-            headers: { 'content-type' => signed_object.content_type },
-            body: body == '' ? body : body.to_json
+        http_method: signed_object.method,
+        url: uri == '/' ? "#{signed_object.api_url}#{uri}" : "#{signed_object.api_url}/#{uri}",
+        headers: { 'content-type' => signed_object.content_type },
+        body: body == '' ? body : body.to_json
       )
       url = URI(signed_object.api_url)
       https = Net::HTTP.new(url.host, url.port)
-      https.use_ssl = true ? url.scheme == "https" : https.use_ssl = false
-      if ENV['VINYLDNS_VERIFY_SSL'] == false || ENV['VINYLDNS_VERIFY_SSL'] =~ /^false$/i
-        https.verify_mode = OpenSSL::SSL::VERIFY_NONE
-      else
-        https.verify_mode = OpenSSL::SSL::VERIFY_PEER
-      end
+      https.use_ssl = true ? url.scheme == 'https' : https.use_ssl = false
+      https.verify_mode = if ENV['VINYLDNS_VERIFY_SSL'] == false || ENV['VINYLDNS_VERIFY_SSL'] =~ /^false$/i
+                            OpenSSL::SSL::VERIFY_NONE
+                          else
+                            OpenSSL::SSL::VERIFY_PEER
+                          end
       request = Net::HTTP::Post.new(uri == '/' ? uri : "/#{uri}") if signed_object.method == 'POST'
       request = Net::HTTP::Put.new(uri == '/' ? uri : "/#{uri}") if signed_object.method == 'PUT'
       request = Net::HTTP::Get.new(uri == '/' ? uri : "/#{uri}") if signed_object.method == 'GET'
@@ -65,7 +68,6 @@ module Vinyldns
       signed_headers.headers.each { |k, v| request[k] = v }
       request['content-type'] = signed_object.content_type
       request.body = body == '' ? body : body.to_json
-
       response = https.request(request)
       case response
       when Net::HTTPSuccess

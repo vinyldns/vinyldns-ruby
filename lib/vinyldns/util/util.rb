@@ -1,3 +1,5 @@
+# frozen_string_literal: true
+
 # Copyright 2018 Comcast Cable Communications Management, LLC
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,7 +14,7 @@ require_relative '../api/zone/zone'
 module Vinyldns
   class Util
     def self.clean_request_payload(payload)
-      payload.delete_if { |k,v| v.to_s.empty?  }
+      payload.delete_if { |_k, v| v.to_s.empty? }
     end
   end
 end

@@ -8,11 +8,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 require 'spec_helper'
-RSpec.describe Vinyldns::Util do
+describe Vinyldns::Util do
   it "removes empty key-value pairs" do
     parameters = {one: "", two: 2, three: "three", four: nil}
     result = Vinyldns::Util.clean_request_payload(parameters)
-    
+
     expect(result).to eq({two: 2, three: "three"})
   end
 end

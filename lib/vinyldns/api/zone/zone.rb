@@ -123,7 +123,7 @@ module Vinyldns
         def self.create(changes_array, comments="", owner_group_id="")
           raise(ArgumentError, 'changes_array parameter must be an Array') unless changes_array.is_a? Array
           api_request_object = Vinyldns::API.new('post')
-          payload = {'changes': changes_array, 'comments': comments, 'ownerGroupId':owner_group_id}
+          payload = {'changes': changes_array, 'comments': comments, 'ownerGroupId': owner_group_id}
           params = Vinyldns::Util.clean_request_payload(payload)
           Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{@api_uri_addition}", params)
         end

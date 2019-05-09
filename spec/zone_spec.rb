@@ -31,10 +31,22 @@ describe Vinyldns::API::Zone do
       wait_until_zone_active(connection['zone']['id'])
       expect(connection['status']).to eq('Pending')
     end
+    it 'accepts backendId' do
+      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'], backendId: 'func-test-backend')
+      wait_until_zone_active(connection['zone']['id'])
+      expect(connection['status']).to eq('Pending')
+      expect(connection['zone']['backendId']).to eq('func-test-backend')
+    end
     it 'responds with 409 Conflict if the zone already exists' do
       connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
       wait_until_zone_active(connection['zone']['id'])
       expect(Vinyldns::API::Zone.connect('ok', group['email'], group['id']).class.name).to eq('Net::HTTPConflict')
+    end
+    it 'raises an error when the backendId is invalid' do
+      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'], backendId: 'does-not-exist')
+      expect(connection).to be_a(Net::HTTPBadRequest)
+      expect(connection.code).to eq('400')
+      expect(connection.read_body).to include('Invalid backendId')
     end
     it 'raises error when group_id AND group_name_filter are nil arguments' do
       expect { Vinyldns::API::Zone.connect('dummy', group['email']) }.to raise_error(ArgumentError)

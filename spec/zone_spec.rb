@@ -14,12 +14,21 @@ describe Vinyldns::API::Zone do
     Vinyldns::API::Group.create("test-group", "foo@bar.com", [], [], "description")
   }
 
+  before(:each) do
+    Vinyldns::API::Zone.search["zones"].each do |zone|
+      Vinyldns::API::Zone.delete(zone["id"])
+      wait_until_zone_deleted(zone["id"])
+    end
+    Vinyldns::API::Group.list_my_groups["groups"].each do |g|
+      Vinyldns::API::Group.delete(g["id"])
+    end
+  end
+
   after(:each) do
     Vinyldns::API::Zone.search["zones"].each do |zone|
       Vinyldns::API::Zone.delete(zone["id"])
       wait_until_zone_deleted(zone["id"])
     end
-
     Vinyldns::API::Group.list_my_groups["groups"].each do |g|
       Vinyldns::API::Group.delete(g["id"])
     end
@@ -42,7 +51,7 @@ describe Vinyldns::API::Zone do
       wait_until_zone_active(connection['zone']['id'])
       expect(Vinyldns::API::Zone.connect('ok', group['email'], group['id']).class.name).to eq('Net::HTTPConflict')
     end
-    it 'raises an error when the backendId is invalid' do
+    it 'responds with 400 Bad Request when the backendId is invalid' do
       connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'], backendId: 'does-not-exist')
       expect(connection).to be_a(Net::HTTPBadRequest)
       expect(connection.code).to eq('400')
@@ -56,6 +65,24 @@ describe Vinyldns::API::Zone do
     end
   end
   describe '.update' do
+    it 'accepts valid backendId' do
+      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
+      wait_until_zone_active(connection['zone']['id'])
+      zone_attributes = connection['zone']
+      zone_attributes['backendId'] = 'func-test-backend'
+      update_connection = Vinyldns::API::Zone.update(connection['zone']['id'], zone_attributes)
+      expect(update_connection['zone']['backendId']).to eq('func-test-backend')
+    end
+    it 'responds with 400 Bad Request when given an invalid backendId' do
+      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
+      wait_until_zone_active(connection['zone']['id'])
+      zone_attributes = connection['zone']
+      zone_attributes['backendId'] = 'does-not-exist'
+      update_connection = Vinyldns::API::Zone.update(connection['zone']['id'], zone_attributes)
+      expect(update_connection).to be_a(Net::HTTPBadRequest)
+      expect(update_connection.code).to eq('400')
+      expect(update_connection.read_body).to include('Invalid backendId')
+    end
     it 'can PUT & receives 400 Bad Request with "Missing Zone.name"' do
       connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
       expect(Vinyldns::API::Zone.update(connection['zone']['id'], { email: 'new-email' }).body).to include('Missing Zone')

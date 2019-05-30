@@ -59,6 +59,13 @@ describe Vinyldns::API::Zone do
       expect(Vinyldns::API::Zone.get(request['zone']['id']).class.name).to eq('Hash')
     end
   end
+  describe '.get_by_name' do
+    it 'does not raise an error' do
+      connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
+      request = wait_until_zone_active(connection['zone']['id'])
+      expect(Vinyldns::API::Zone.get_by_name(request['zone']['name']).class.name).to eq('Hash')
+    end
+  end
   describe '.search' do
     it 'returns zones' do
       connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])

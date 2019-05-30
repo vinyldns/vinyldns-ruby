@@ -51,6 +51,11 @@ module Vinyldns
         Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{id}")
       end
 
+      def self.get_by_name(name)
+        api_request_object = Vinyldns::API.new('get')
+        Vinyldns::API.make_request(api_request_object, "#{@api_uri}/name/#{name}")
+      end
+
       def self.search(name_filter = nil, max_items = 5, start_from = nil)
         api_request_object = Vinyldns::API.new('get')
         # UNI.encode matches all symbols that must be replaced with codes

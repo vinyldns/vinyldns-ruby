@@ -100,6 +100,8 @@ If you decide to contribute, please read over our [contributor documentation](CO
 
     - get(id)
 
+    - get_by_name(name)
+
     - search(name_filter = nil, max_items = 5, start_from = nil)
         - If name_filter is not set, it will pull an alphabetical list of zones you have access to.
 

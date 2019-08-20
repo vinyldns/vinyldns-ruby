@@ -294,7 +294,7 @@ describe Vinyldns::API::Zone::BatchRecordChanges do
     it 'cannot cancel a batch change that is not pending review' do
       batch_change = Vinyldns::API::Zone::BatchRecordChanges.user_recent['batchChanges'].first
       cancel_batch_change = Vinyldns::API::Zone::BatchRecordChanges.cancel(batch_change['id'])
-      expect(cancel_batch_change.class).to eq(Net::HTTPBadRequest)
+      expect(cancel_batch_change.class).to eq(Net::HTTPNotFound)
     end
   end
 end

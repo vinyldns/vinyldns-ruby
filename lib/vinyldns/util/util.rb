@@ -14,5 +14,11 @@ module Vinyldns
     def self.clean_request_payload(payload)
       payload.delete_if { |k,v| v.to_s.empty?  }
     end
+
+    def self.clean_query_params(params)
+      params.delete_if { |k,v| v.to_s.empty?  }
+      query_string = "?"
+      query_string += params.map { |k,v| "#{k}=#{v}"}.join('&')
+    end
   end
 end

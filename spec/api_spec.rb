@@ -38,7 +38,7 @@ RSpec.describe Vinyldns::API do
     it 'can not make http request with bad uri' do
       api_request_object = Vinyldns::API.new('GEt')
       # Requires you to have at least one zone for your user/group
-      expect(Vinyldns::API.make_request(api_request_object, 'maxItems=1').class.name).to eq('Net::HTTPUnauthorized')
+      expect(Vinyldns::API.make_request(api_request_object, 'maxItems=1').class.name).to eq('Net::HTTPNotFound')
     end
 
     describe 'Make Requests with ENV[\'VINYLDNS_VERIFY_SSL\']' do

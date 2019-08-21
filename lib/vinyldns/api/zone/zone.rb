@@ -51,10 +51,17 @@ module Vinyldns
         Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{id}")
       end
 
-      def self.search(name_filter = nil, max_items = 5, start_from = nil)
+      def self.get_by_name(name)
         api_request_object = Vinyldns::API.new('get')
+        Vinyldns::API.make_request(api_request_object, "#{@api_uri}/name/#{name}")
+      end
+
+      def self.search(name_filter: nil, max_items: 5, start_from: nil, ignore_access: false)
+        api_request_object = Vinyldns::API.new('get')
+        params = {"maxItems": max_items, "nameFilter": name_filter, "startFrom": start_from, "ignoreAccess": ignore_access}
+        query = Vinyldns::Util.clean_query_params(params)
         # UNI.encode matches all symbols that must be replaced with codes
-        Vinyldns::API.make_request(api_request_object, "#{@api_uri}?#{URI.encode_www_form([['nameFilter', name_filter], ['maxItems', max_items], ['startFrom', start_from]])}")
+        Vinyldns::API.make_request(api_request_object, "#{@api_uri}#{query}")
       end
 
       def self.sync(id)
@@ -104,11 +111,12 @@ module Vinyldns
           Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{zone_id}/#{@api_uri_addition}/#{id}")
         end
 
-        def self.search(zone_id, name_filter = nil, max_items = 10, start_from = nil)
+        def self.search(zone_id, name_filter=nil, max_items=10, start_from=nil)
           api_request_object = Vinyldns::API.new('get')
           # UNI.encode matches all symbols that must be replaced with codes
-          parameters = "?maxItems=#{max_items}#{name_filter.nil? ? '' : "&recordNameFilter=#{name_filter}"}#{start_from.nil? ? '' : "&start_from=#{start_from}"}"
-          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{zone_id}/#{@api_uri_addition}#{parameters}")
+          params = {"maxItems": max_items, "recordNameFilter": name_filter, "startFrom": start_from}
+          query = Vinyldns::Util.clean_query_params(params)
+          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{zone_id}/#{@api_uri_addition}#{query}")
         end
 
         def self.get_change(zone_id, id, change_id) # Use Vinyldns::API::Zone.list_changes to obtain change_id
@@ -120,12 +128,12 @@ module Vinyldns
         @api_uri = 'zones'
         @api_uri_addition = 'batchrecordchanges'
 
-        def self.create(changes_array, comments="", owner_group_id="")
+        def self.create(changes_array, comments = "", owner_group_id = "", scheduled_time = nil, allow_manual_review = true)
           raise(ArgumentError, 'changes_array parameter must be an Array') unless changes_array.is_a? Array
           api_request_object = Vinyldns::API.new('post')
-          payload = {'changes': changes_array, 'comments': comments, 'ownerGroupId': owner_group_id}
+          payload = {'changes': changes_array, 'comments': comments, 'ownerGroupId': owner_group_id, 'scheduledTime': scheduled_time}
           params = Vinyldns::Util.clean_request_payload(payload)
-          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{@api_uri_addition}", params)
+          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{@api_uri_addition}?allowManualReview=#{allow_manual_review}", params)
         end
 
         def self.get(id)
@@ -133,9 +141,30 @@ module Vinyldns
           Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{@api_uri_addition}/#{id}")
         end
 
-        def self.user_recent
+        def self.user_recent(ignore_access: false, approval_status: nil)
           api_request_object = Vinyldns::API.new('get')
-          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{@api_uri_addition}")
+          params = {"ignoreAccess": ignore_access, "approvalStatus": approval_status}
+          query = Vinyldns::Util.clean_query_params(params)
+          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{@api_uri_addition}#{query}")
+        end
+
+        def self.cancel(id)
+          api_request_object = Vinyldns::API.new('post')
+          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{@api_uri_addition}/#{id}/cancel")
+        end
+
+        def self.approve(id, review_comment=nil)
+          api_request_object = Vinyldns::API.new('post')
+          payload = {'reviewComment': review_comment}
+          params = Vinyldns::Util.clean_request_payload(payload)
+          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{@api_uri_addition}/#{id}/approve", params)
+        end
+
+        def self.reject(id, review_comment=nil)
+          api_request_object = Vinyldns::API.new('post')
+          payload = {'reviewComment': review_comment}
+          params = Vinyldns::Util.clean_request_payload(payload)
+          Vinyldns::API.make_request(api_request_object, "#{@api_uri}/#{@api_uri_addition}/#{id}/reject", params)
         end
       end
     end

@@ -69,16 +69,16 @@ If you decide to contribute, please read over our [contributor documentation](CO
             "latestSync"=>"2017-12-04T19:35:53Z"}],
          "maxItems"=>5}
 
-            
+
 ## All Available Methods  
 
 * Below method arguments with "=" next to them indicate a default value. You do not have to specify "argmuentX = nil', just know if you don't set it nil will be used.
-     
+
 ### Vinyldns::API
 
     - new(method, region = 'us-east-1', api_url = ENV['VINYLDNS_API_URL'], content_type = 'application/x-www-form-urlencoded')
        - Required for make_request, but not before any of the Vinyldns::API::* methods.
-    
+
     - make_request(signed_object, uri, body = '')
        - HTTP requests that fail are returned as: ```#<Net::HTTPUnauthorized 401 Unauthorized readbody=true>```
 
@@ -95,7 +95,7 @@ If you decide to contribute, please read over our [contributor documentation](CO
         - Zone API Reference > Zone Model details all available options
         - request_params must be a hash of values permitted by the API. See the API reference linked to above.
         - Updates are NOT immediate.
-        
+
     - delete(id)
 
     - get(id)
@@ -121,23 +121,43 @@ If you decide to contribute, please read over our [contributor documentation](CO
 
     - get(zone_id, id)
 
-    - search(zone_id, name_filter = nil, max_items=10, start_from = nil)
-        - If name_filter is not set, it will pull an alphabetical list of zones you have access to.
+    - search(zone_id, name_filter = nil, max_items=10, start_from = nil, ignore_access)
+        - If name_filter is not set, it will pull an alphabetical list of zones.
+        - If ignore_access is true, it will return zones regardless of your access to them.
 
     - get_change(zone_id, id, change_id)
         - Use Vinyldns::API::Zone.list_changes to obtain change_id
-        
+
 ### Vinyldns::API::Zone::BatchRecordChanges
 
     [No Zone ID needed for these]
 
-    - create(changes_array, comments)
+    - create(changes_array, comments, owner_group_id, scheduled_time, allow_manual_review)
         - changes must be an array of Add or DeleteRecordSet hashes.
+        - scheduled_time only allowed if manual batch change review and scheduled batch changes are supported in the VinylDNS instance
+        - allow_manual_review default is true, can be set to false to fail rather than sending to review if there are soft errors in the batch change.
 
     - get(id)
-    
-    - user_recent
+
+    - user_recent(ignore_access, approvalStatus)
         - Summary information for the most recent 100 batch changes created by the user.
+        - If ignore_access is true, it will return batch changes whether you created them or not. Filter only applies for VinylDNS super and support admins.
+        - approval_status is a filter, can be one of AutoApproved, PendingReview, ManuallyApproved or Rejected.
+
+    - cancel(id)
+      - Requires manual batch change to be enabled in VinylDNS instance.
+      - Only for the creator of the batch change.
+      - Batch Change must have an approval status of PendingReview.
+
+    - approve(id, review_comment)
+      - Requires manual batch change to be enabled in VinylDNS instance.
+      - For VinylDNS super and support admins only.
+      - Batch Change must have an approval status of PendingReview.
+
+    - reject(id, review_comment)
+      - Requires manual batch change to be enabled in VinylDNS instance.
+      - For VinylDNS super and support admins only.
+      - Batch Change must have an approval status of PendingReview.
 
 ### Vinyldns::API::Group
 
@@ -161,4 +181,5 @@ If you decide to contribute, please read over our [contributor documentation](CO
     - get_group_activity(id, max_items = 5, start_from = nil)
 
 # Maintainers
+* [Britney Wright](https://github.com/BritneyWright)
 * [Nathan Pierce](https://github.com/NorseGaud)

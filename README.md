@@ -54,7 +54,7 @@ There are a number of scripts for executing the tests located in the scripts/ di
   $ make test
 ```
 If the local api isn't available it will be downloaded and launched before the tests begin running.
-The script will leae the api running.  When you are done with it you can stop it using the following command:
+The script will leave the api running.  When you are done with it you can stop it using the following command:
 ```
   $ make stop-api
 ```

@@ -43,6 +43,22 @@ This project adheres to the Contributor Covenant [code of conduct](CODE_OF_CONDU
 
 If you decide to contribute, please read over our [contributor documentation](CONTRIBUTING.md).
 
+## Developing
+
+### Running the RSpec tests
+
+Testing requires a local running VinylDNS instance and this depends on having **Docker**.
+
+There are a number of scripts for executing the tests located in the scripts/ directory.  These can be executed simply by running:
+```
+  $ make test
+```
+If the local api isn't available it will be downloaded and launched before the tests begin running.
+The script will leae the api running.  When you are done with it you can stop it using the following command:
+```
+  $ make stop-api
+```
+
 ## Namespaces and Methods
 
 * Arguments to methods, take Vinyldns::API::Zone.get(id) as an example, can be a little confusing at first. All arguments used under a method that are not explicit, like in our example *id*, can be understood as *zone_id* due to it existing under the namespace ::Zone.

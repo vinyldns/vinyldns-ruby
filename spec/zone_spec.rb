@@ -9,17 +9,24 @@
 # limitations under the License.
 require 'spec_helper'
 describe Vinyldns::API::Zone do
-
-  let(:group) {
+  before do
     Vinyldns::API::Group.create("test-group", "foo@bar.com", [], [], "description")
-  }
+  end
+
+  let(:group) do
+    Vinyldns::API::Group.list_my_groups["groups"].find do |group|
+      group["name"] == "test-group"
+    end
+  end
 
   after(:each) do
-    Vinyldns::API::Zone.search["zones"].each do |zone|
+    Vinyldns::API::Zone.search("ok")["zones"].each do |zone|
       Vinyldns::API::Zone.delete(zone["id"])
       wait_until_zone_deleted(zone["id"])
     end
+  end
 
+  after do
     Vinyldns::API::Group.list_my_groups["groups"].each do |g|
       Vinyldns::API::Group.delete(g["id"])
     end
@@ -63,7 +70,7 @@ describe Vinyldns::API::Zone do
     it 'returns zones' do
       connection = Vinyldns::API::Zone.connect('ok', group['email'], group['id'])
       request = wait_until_zone_active(connection['zone']['id'])
-      expect(Vinyldns::API::Zone.search["zones"].length).to eq(1)
+      expect(Vinyldns::API::Zone.search("ok")["zones"].length).to eq(1)
     end
   end
 end
@@ -82,7 +89,7 @@ describe Vinyldns::API::Zone::RecordSet do
   end
 
   let(:first_zone) do
-    Vinyldns::API::Zone.search["zones"].find do |zone|
+    Vinyldns::API::Zone.search("ok")["zones"].find do |zone|
       zone["name"] == "ok."
     end
   end
@@ -94,7 +101,7 @@ describe Vinyldns::API::Zone::RecordSet do
   end
 
   after(:all) do
-    Vinyldns::API::Zone.search["zones"].each do |zone|
+    Vinyldns::API::Zone.search("ok")["zones"].each do |zone|
       Vinyldns::API::Zone.delete(zone["id"])
       wait_until_zone_deleted(zone["id"])
     end
@@ -135,7 +142,7 @@ describe Vinyldns::API::Zone::BatchRecordChanges do
   end
 
   let(:first_zone) do
-    Vinyldns::API::Zone.search["zones"].find do |zone|
+    Vinyldns::API::Zone.search("ok")["zones"].find do |zone|
       zone["name"] == "ok."
     end
   end
@@ -156,7 +163,7 @@ describe Vinyldns::API::Zone::BatchRecordChanges do
     Vinyldns::API::Group.list_my_groups["groups"].each do |group|
       Vinyldns::API::Group.delete(group["id"])
     end
-    Vinyldns::API::Zone.search["zones"].each do |zone|
+    Vinyldns::API::Zone.search("ok")["zones"].each do |zone|
       Vinyldns::API::Zone.delete(zone["id"])
       wait_until_zone_deleted(zone["id"])
     end

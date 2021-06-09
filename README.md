@@ -176,5 +176,3 @@ The script will leave the api running.  When you are done with it you can stop i
 
     - get_group_activity(id, max_items = 5, start_from = nil)
 
-# Maintainers
-* [Nathan Pierce](https://github.com/NorseGaud)

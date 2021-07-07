@@ -1,4 +1,5 @@
 [![Travis build](https://api.travis-ci.org/vinyldns/vinyldns-ruby.svg?branch=master)](https://travis-ci.org/vinyldns/vinyldns-ruby)
+![GitHub](https://img.shields.io/github/license/vinyldns/vinyldns-ruby)
 
 # VinylDNS-Ruby
 

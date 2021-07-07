@@ -1,4 +1,5 @@
 [![Travis build](https://api.travis-ci.org/vinyldns/vinyldns-ruby.svg?branch=master)](https://travis-ci.org/vinyldns/vinyldns-ruby)
+[![GitHub](https://img.shields.io/github/license/vinyldns/vinyldns-ruby)](https://github.com/vinyldns/vinyldns/blob/master/LICENSE)
 
 # VinylDNS-Ruby
 
@@ -85,16 +86,16 @@ The script will leave the api running.  When you are done with it you can stop i
             "latestSync"=>"2017-12-04T19:35:53Z"}],
          "maxItems"=>5}
 
-            
+
 ## All Available Methods  
 
 * Below method arguments with "=" next to them indicate a default value. You do not have to specify "argmuentX = nil', just know if you don't set it nil will be used.
-     
+
 ### Vinyldns::API
 
     - new(method, region = 'us-east-1', api_url = ENV['VINYLDNS_API_URL'], content_type = 'application/x-www-form-urlencoded')
        - Required for make_request, but not before any of the Vinyldns::API::* methods.
-    
+
     - make_request(signed_object, uri, body = '')
        - HTTP requests that fail are returned as: ```#<Net::HTTPUnauthorized 401 Unauthorized readbody=true>```
 
@@ -111,7 +112,7 @@ The script will leave the api running.  When you are done with it you can stop i
         - Zone API Reference > Zone Model details all available options
         - request_params must be a hash of values permitted by the API. See the API reference linked to above.
         - Updates are NOT immediate.
-        
+
     - delete(id)
 
     - get(id)
@@ -142,7 +143,7 @@ The script will leave the api running.  When you are done with it you can stop i
 
     - get_change(zone_id, id, change_id)
         - Use Vinyldns::API::Zone.list_changes to obtain change_id
-        
+
 ### Vinyldns::API::Zone::BatchRecordChanges
 
     [No Zone ID needed for these]
@@ -151,7 +152,7 @@ The script will leave the api running.  When you are done with it you can stop i
         - changes must be an array of Add or DeleteRecordSet hashes.
 
     - get(id)
-    
+
     - user_recent
         - Summary information for the most recent 100 batch changes created by the user.
 

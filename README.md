@@ -1,5 +1,5 @@
-[![Travis build](https://api.travis-ci.org/vinyldns/vinyldns-ruby.svg?branch=master)](https://travis-ci.org/vinyldns/vinyldns-ruby)
-
+# ⚠️This project is no longer being maintained ⚠️
+If you are interested in becoming a maintainer, please reach out to <vinyldns-core@googlegroups.com>
 # VinylDNS-Ruby
 
 Ruby gem for working with VinylDNS.
